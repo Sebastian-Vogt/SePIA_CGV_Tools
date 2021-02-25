@@ -12,7 +12,7 @@ entweder für beide Tools also creator und Modifier oder nur für den Modifier.
 1. Anaconda installieren ([Anleitung hier](https://www.anaconda.com/products/individual))
 2. Microsoft Visual C++ 14.0 oder größer inklusive Windows 10 SDK installieren. (Falls aktuelles Visual Studio mit C++ Paketen und Win 10 SDK installiert ist, sollten sie bereits vorhanden sein. Anderenfalls [dieser Anleitung](https://www.scivision.dev/python-windows-visual-c-14-required) folgen.)
 3. CUDA Toolkit 10.1 installieren ([Anleitung hier](https://developer.nvidia.com/cuda-10.1-download-archive-update2))
-4. CUDNN 7.6.5 installieren ([Downloadlink](https://developer.nvidia.com/rdp/cudnn-archive) (kostenloser Account erforderlich. Für Win10 64bit liegt der Ordner bei.) [Installationsanleitung folgen](https://docs.nvidia.com/deeplearning/cudnn/install-guide/index.html#installwindows). Im Grunde kopieren der Dateien in den CUDA Ordner.)
+4. CUDNN 7.6.5 installieren ([Downloadlink](https://developer.nvidia.com/rdp/cudnn-archive) (kostenloser Account erforderlich. Für Win10 64bit kann der Ordner [hier](https://cloudstore.zih.tu-dresden.de/index.php/s/q9iaBXGEPJdEjwP) heruntergeladen werden.) [Installationsanleitung folgen](https://docs.nvidia.com/deeplearning/cudnn/install-guide/index.html#installwindows). Im Grunde kopieren der Dateien in den CUDA Ordner.)
 5. Überprüfen, dass die Umgebungsvariablen korrekt gesetzt sind:
 	Variablenname: ```CUDA_PATH```
 	Wert: ```C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1``` (bzw. den entsprechenden Installationspfad)
@@ -25,6 +25,10 @@ entweder für beide Tools also creator und Modifier oder nur für den Modifier.
 12. Keras-Retinanet installieren:
 	1. in keras-retinanet-master Ordner wechseln
 	2. ```pip install . --user``` ausführen.
+13. Netzwerk-Gewichte downloaden:
+	1. [Yolo Gewichte](https://cloudstore.zih.tu-dresden.de/index.php/s/YNB4Wjky8CKB2LA) herunterladen.
+	2. [RetinaNet Gewichte](https://cloudstore.zih.tu-dresden.de/index.php/s/qfaZqBMmAntJDej) herunterladen.
+	3. Beide Dateien unter ```trajectoryCreator\weights``` speichern.
 	
 ### Reine Modifier Installation
 1. Anaconda installieren ([Anleitung hier](https://www.anaconda.com/products/individual))
