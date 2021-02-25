@@ -97,35 +97,35 @@ Ist der Treiber nicht installiert werden die Tabellen als .csv Dateien gespeiche
 	**Lösung:** Die korrekte Anacondaumgebung ist nicht aktiviert. (Siehe Ausführen Punkt 2) Das muss bei jedem Start der Anaconda Prompt gemacht werden.
 
 -	Beim Ausführen:
-	```(sepia) ...\SePIA_CGV_Tools_Repository\trajectoryCreator>python app.py [WinError 2] Das System kann die angegebene Datei nicht finden
-	NoneType: None
-	Failed to detect chrome location from registry
-	2020-12-15 13:43:34.146332: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library cudart64_101.dll [WinError 2] Das System kann die angegebene Datei nicht finden
-	NoneType: None
-	Failed to detect chrome location from registry
-	2020-12-15 13:44:02.146266: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library cudart64_101.dll Exception in thread Thread-2:
-	Traceback (most recent call last):
-	  File "...\Anaconda3\envs\sepia\lib\threading.py", line 932, in _bootstrap_inner
-	 * Serving Flask app "globals" (lazy loading)
-	 * Environment: production
-	   WARNING: This is a development server. Do not use it in a production deployment.
-	   Use a production WSGI server instead.
-	 * Debug mode: off
-		self.run()
-	  File "...\Anaconda3\envs\sepia\lib\threading.py", line 870, in run
-		self._target(*self._args, **self._kwargs)
-	  File "...\Anaconda3\envs\sepia\lib\site-packages\flaskwebgui.py", line 205, in open_browser
-	 * Running on http://127.0.0.1:8080/ (Press CTRL+C to quit)
-		self.BROWSER_PROCESS = sps.Popen(options,
-	  File "...\Anaconda3\envs\sepia\lib\subprocess.py", line 854, in __init__
-		self._execute_child(args, executable, preexec_fn, close_fds,
-	  File "...\Anaconda3\envs\sepia\lib\subprocess.py", line 1247, in _execute_child
-		args = list2cmdline(args)
-	  File "...\Anaconda3\envs\sepia\lib\subprocess.py", line 549, in list2cmdline
-		for arg in map(os.fsdecode, seq):
-	  File "...\Anaconda3\envs\sepia\lib\os.py", line 818, in fsdecode
-		filename = fspath(filename)  # Does type-checking of `filename`.
-	TypeError: expected str, bytes or os.PathLike object, not NoneType```
+		```(sepia) ...\SePIA_CGV_Tools_Repository\trajectoryCreator>python app.py [WinError 2] Das System kann die angegebene Datei nicht finden
+		NoneType: None
+		Failed to detect chrome location from registry
+		2020-12-15 13:43:34.146332: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library cudart64_101.dll [WinError 2] Das System kann die angegebene Datei nicht finden
+		NoneType: None
+		Failed to detect chrome location from registry
+		2020-12-15 13:44:02.146266: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library cudart64_101.dll Exception in thread Thread-2:
+		Traceback (most recent call last):
+		  File "...\Anaconda3\envs\sepia\lib\threading.py", line 932, in _bootstrap_inner
+		 * Serving Flask app "globals" (lazy loading)
+		 * Environment: production
+		   WARNING: This is a development server. Do not use it in a production deployment.
+		   Use a production WSGI server instead.
+		 * Debug mode: off
+			self.run()
+		  File "...\Anaconda3\envs\sepia\lib\threading.py", line 870, in run
+			self._target(*self._args, **self._kwargs)
+		  File "...\Anaconda3\envs\sepia\lib\site-packages\flaskwebgui.py", line 205, in open_browser
+		 * Running on http://127.0.0.1:8080/ (Press CTRL+C to quit)
+			self.BROWSER_PROCESS = sps.Popen(options,
+		  File "...\Anaconda3\envs\sepia\lib\subprocess.py", line 854, in __init__
+			self._execute_child(args, executable, preexec_fn, close_fds,
+		  File "...\Anaconda3\envs\sepia\lib\subprocess.py", line 1247, in _execute_child
+			args = list2cmdline(args)
+		  File "...\Anaconda3\envs\sepia\lib\subprocess.py", line 549, in list2cmdline
+			for arg in map(os.fsdecode, seq):
+		  File "...\Anaconda3\envs\sepia\lib\os.py", line 818, in fsdecode
+			filename = fspath(filename)  # Does type-checking of `filename`.
+		TypeError: expected str, bytes or os.PathLike object, not NoneType```
 
 
 	**Lösung:** Der Standardbrowser (in diesem Fall Chrome) kann nicht gefunden werden. Den Link (http://127.0.0.1:8080/) manuell in den Browser eingeben. Sollten weitere Fehler auftauchen:
