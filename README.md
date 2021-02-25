@@ -1,6 +1,7 @@
 # SePIA CGV Tools
 
 Dieses Repository enthält den Trajectorien-Creator und den Trajektorien-Modifier des SePIA Projekts sowie einige zur Installation bzw. zum Aufsetzen nötigen Dateien.
+Die Tools dieses Repos sind nicht für den öffentlichen Gebrauch gedacht und das Repository wird entsprechend nur intern weiterentwickelt und nicht extern supportet.
 
 ## Installation
 

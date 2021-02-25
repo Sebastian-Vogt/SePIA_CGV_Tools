@@ -129,3 +129,4 @@ dmypy.json
 cudnn-10.1-windows10-x64-v7.6.5.32.zip
 *.pt
 *.h5
+*.mp4
