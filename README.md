@@ -127,6 +127,7 @@ Ist der Treiber nicht installiert werden die Tabellen als .csv Dateien gespeiche
 		filename = fspath(filename)  # Does type-checking of `filename`.
 	TypeError: expected str, bytes or os.PathLike object, not NoneType```
 
+
 	**Lösung:** Der Standardbrowser (in diesem Fall Chrome) kann nicht gefunden werden. Den Link (http://127.0.0.1:8080/) manuell in den Browser eingeben. Sollten weitere Fehler auftauchen:
 	Browserlocation händisch angeben. Dazu für den Creator: die Zeile 7 in trajectoryCreator/globals.py in einem Editor ersetzten durch:
 	```ui = FlaskUI(flask_app, port=8080, browser_path="C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe")```
