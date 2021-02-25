@@ -143,3 +143,5 @@ Für den Modifier entsprechend in der trajectoryModifier/modifierApp.py Zeile 21
 ```ui = FlaskUI(app, browser_path="...")```
 
 
+## Lizenzen
+Dieses Repository steht unter den gleichen Lizenzen wie die genutzten Bibliotheken.
