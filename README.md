@@ -58,10 +58,10 @@ Um die Programme auszuführen:
 Um die PCMv5 Datenbank im MS Access-Format (.mdb) speichern zu können ist der MS Access Driver in der 64 Bit Version nötig. (Dieser sollte installiert sein, wenn MS Access in der 64 Bit Version installiert ist. Ansonsten [hier herunterladen](https://www.microsoft.com/en-us/download/details.aspx?id=54920) Der Treiber ist nicht mit gleichzeitig installiertem 32 Bit Office kompatibel!)
 Ist der Treiber nicht installiert werden die Tabellen als .csv Dateien gespeichert.
 
-## Updaten
-Entweder per Git Pull. Dann sollte alles bereit sein.
+## Update
+Entweder per Git Pull.
 Oder per Download des Zip-Ordners. Diesen entpacken und in den vorhandenen Ornder ziehen und alle Dateien ersetzen.
-**Achtung: Vorher die assignment und carFiles umbenennen/an einem anderen Ort sichern. Sonst werden diese überschrieben!**
+**Achtung: Vorher die geänderten assignment und carFiles umbenennen/an einem anderen Ort sichern. Sonst werden diese überschrieben!**
 
 ## Bekannte Fehler
 - ```ERROR: Failed building wheel for keras-retinanet
