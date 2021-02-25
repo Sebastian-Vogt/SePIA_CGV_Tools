@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TrajectoryCreator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+</head>
+<body>
+<div class="container">
+    <div class="left">
+        <div id="settings-section">
+            <div id="start-batch-process-button" class="leftButton">
+                <svg viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd"
+                          d="M1.5 14.5A1.5 1.5 0 0 1 0 13V6a1.5 1.5 0 0 1 1.5-1.5h13A1.5 1.5 0 0 1 16 6v7a1.5 1.5 0 0 1-1.5 1.5h-13zm5.265-7.924A.5.5 0 0 0 6 7v5a.5.5 0 0 0 .765.424l4-2.5a.5.5 0 0 0 0-.848l-4-2.5zM2 3a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 0-1h-11A.5.5 0 0 0 2 3zm2-2a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 0-1h-7A.5.5 0 0 0 4 1z"/>
+                </svg>
+            </div>
+            <div id="add-folder-button" class="leftButton">
+                <svg viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd"
+                          d="M2 3a2 2 0 0 1 2-2h5.293a1 1 0 0 1 .707.293L13.707 5a1 1 0 0 1 .293.707V13a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V3zm7 2V2l4 4h-3a1 1 0 0 1-1-1zm-.5 2a.5.5 0 0 0-1 0v1.5H6a.5.5 0 0 0 0 1h1.5V11a.5.5 0 0 0 1 0V9.5H10a.5.5 0 0 0 0-1H8.5V7z"/>
+                </svg>
+            </div>
+            <div id="settings-button" class="leftButton">
+                <svg viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd"
+                          d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 0 0-5.86 2.929 2.929 0 0 0 0 5.858z"/>
+                </svg>
+            </div>
+        </div>
+        <div id="task-list-section">
+            <!--<div class="task">
+                <div class="progressMeter" style="width:35%"></div>
+                <div class="progressText"> 35%: Tracking (267/300Frames)</div>
+                <div class="taskName">20200220_114024_ACCsetButton</div>
+                <div class="removeTaskButton">
+                    <svg viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd"
+                              d="M11.854 4.146a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708-.708l7-7a.5.5 0 0 1 .708 0z"/>
+                        <path fill-rule="evenodd"
+                              d="M4.146 4.146a.5.5 0 0 0 0 .708l7 7a.5.5 0 0 0 .708-.708l-7-7a.5.5 0 0 0-.708 0z"/>
+                    </svg>
+                </div>
+            </div>-->
+        </div>
+    </div>
+    <div class="right">
+        <div id="map-symbol-container">
+            <svg id="map-symbol" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd"
+                      d="M15.817.613A.5.5 0 0 1 16 1v13a.5.5 0 0 1-.402.49l-5 1a.502.502 0 0 1-.196 0L5.5 14.51l-4.902.98A.5.5 0 0 1 0 15V2a.5.5 0 0 1 .402-.49l5-1a.5.5 0 0 1 .196 0l4.902.98 4.902-.98a.5.5 0 0 1 .415.103zM10 2.41l-4-.8v11.98l4 .8V2.41zm1 11.98l4-.8V1.61l-4 .8v11.98zm-6-.8V1.61l-4 .8v11.98l4-.8z"/>
+            </svg>
+        </div>
+        <div id="settings-container" class="hidden">
+            <div id="sections">
+                <div id="geoHandler" class="section">
+                    <p class="sectionLabel">Geography Handler Settings:</p>
+                    <div id="geoTiffs" class="myButton fileSelectionButton">Select GeoTiff Files</div>
+                    <p id="geoTiffPaths">xyz....</p>
+                </div>
+                <div id="cars" class="section">
+                    <p class="sectionLabel">Car Settings:</p>
+                    <div id="carFile" class="myButton fileSelectionButton">Select Car Calibration JSON File</div>
+                    <p id="carFilePath">xyz...</p>
+                    <div id="carAssignmentFile" class="myButton fileSelectionButton">Select Folder Car Assignment JSON
+                        File
+                    </div>
+                    <p id="carAssignmentFilePath">xyz...</p>
+                </div>
+                <div id="detector" class="section">
+                    <p class="sectionLabel">Detector Settings:</p>
+                    <div id="detectorSelection" class="myButton fileSelectionButton">Select Detector Weights Files</div>
+                    <p id="detectorPath">xyz...</p></br>
+                    <div id="yoloSelection" class="myButton fileSelectionButton">Select Yolo Support Detector Weights Files</div>
+                    <p id="yoloPath">xyz...</p></br>
+                    <label for="detThresh">Minimum Required Detection Probability (0 - 1)</label>
+                    <input type="number" id="detThresh" name="detThresh" value=0.75 min="0" max="1" step="0.01">
+                </div>
+                <div id="tracker" class="section">
+                    <p class="sectionLabel">Tracker:</p>
+                    <label for="minOcc">Minimum Number Of Occurrences</label>
+                    <input type="number" id="minOcc" name="minOcc" value="2" min="1"></br></br>
+                    <label for="maxAge">Maximum Number Of Misses (1-100)</label>
+                    <input type="number" id="maxAge" name="maxAge" value="30" min="1" max="100"></br></br>
+                    <label for="simThresh">Minimum Required Similarity (0 (no similarity) - 1 (identical))</label>
+                    <input type="number" id="simThresh" name="simThresh" value=0.3 min="0" max="1"
+                           step="0.01"></br></br>
+                    <label for="trackLabelVideo">Save A Video With Marked Track Labels</label>
+                    <input type="checkbox" id="trackLabelVideo" name="trackLabelVideo"
+                           value="trackLabelVideo"></br></br>
+                    <label for="trackIdVideo">Save A Video With Marked Track IDs</label>
+                    <input type="checkbox" id="trackIdVideo" name="trackIdVideo"
+                           value="trackIdVideo"></br></br>
+                    <label for="relativeDistanceVideo">Save A Video With Marked Relative Positions</label>
+                    <input type="checkbox" id="relativeDistanceVideo" name="relativeDistanceVideo"
+                           value="relativeDistanceVideo">
+                </div>
+                <div id="multiprocessing" class="section">
+                    <p class="sectionLabel">Multiprocessing:</p>
+                    <label for="poolSize">Size Of The Worker Pool</label>
+                    <input type="number" id="poolSize" name="poolSize" value="4" min="1" max="32"></br></br>
+                    <label for="concurrentGPUProcesses">Number Of Parallel Processes On GPU (More Than 1 Can Potentially Cause Errors)</label>
+                    <input type="number" id="concurrentGPUProcesses" name="concurrentGPUProcesses" value="1" min="1" max="32"></br></br>
+                </div>
+            </div>
+            <div id="settingsMainButtons">
+                <div id="settingsApplyButton" class="leftButton">
+                    Apply
+                </div>
+                <div id="settingsCancelButton" class="leftButton">
+                    Cancel
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

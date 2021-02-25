@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Flask App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+Thambi+2&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-lasso@2.0.8/dist/leaflet-lasso.umd.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.6.1/proj4.js"></script>
+    <script src="{{ url_for('static', filename='js/svg-inject.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/globals.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/line_and_point_location.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/video_controls.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/mapButtonControls.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/saveButtonControls.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/elementDescriptorButtonControls.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/video_boxes.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/element_selector.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/color_links.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <!--
+    <script src="{{ url_for('static', filename='js/ObjectDrawer.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/BoxDrawer.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/MapObjectDrawer.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ElementDrawer.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ButtonHandler.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ColorLinker.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/InteractionHandler.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/PositionManager.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/SelectionManager.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/TimeHandler.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/TrajectoryHandler.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/VideoController.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main2.0.js') }}"></script>
+    -->
+</head>
+<body>
+<div id="centerUrlBypass" data-url="{{ url_for('static', filename='images/center.png') }}" class="hidden"></div>
+<div id="map"></div>
+<div id="leftSide">
+    <div id="selectionModeDropdown" class="dropdown">
+        <a id="selectedSelectionMode" type="button" class="interactionButton selectedDropdownElement">
+            <svg id="svgAll" class="hidden" viewBox="0 0 16 16" fill="currentColor"
+                 xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd"
+                      d="M12.354 3.646a.5.5 0 010 .708l-7 7a.5.5 0 01-.708 0l-3.5-3.5a.5.5 0 11.708-.708L5 10.293l6.646-6.647a.5.5 0 01.708 0z"
+                      clip-rule="evenodd"/>
+                <path d="M6.25 8.043l-.896-.897a.5.5 0 10-.708.708l.897.896.707-.707zm1 2.414l.896.897a.5.5 0 00.708 0l7-7a.5.5 0 00-.708-.708L8.5 10.293l-.543-.543-.707.707z"/>
+            </svg>
+            <svg id="svgLine" class="hidden" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd"
+                      d="M13.854 3.646a.5.5 0 010 .708l-7 7a.5.5 0 01-.708 0l-3.5-3.5a.5.5 0 11.708-.708L6.5 10.293l6.646-6.647a.5.5 0 01.708 0z"
+                      clip-rule="evenodd"/>
+            </svg>
+            <svg id="svgPoint" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" clip-rule="evenodd"/>
+            </svg>
+            <svg id="svgSelection" class="hidden" viewBox="0 0 16 16" fill="currentColor"
+                 xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd"
+                      d="M8 1.288l-6.842 5.56L3.733 15h8.534l2.575-8.153L8 1.288zM16 6.5L8 0 0 6.5 3 16h10l3-9.5z"
+                      clip-rule="evenodd"/>
+            </svg>
+        </a>
+        <div id="selectionModeDropdownContent" class="dropdownContent">
+            <a id="allSelectionButton" type="button" class="interactionButton top">
+                <svg viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd"
+                          d="M12.354 3.646a.5.5 0 010 .708l-7 7a.5.5 0 01-.708 0l-3.5-3.5a.5.5 0 11.708-.708L5 10.293l6.646-6.647a.5.5 0 01.708 0z"
+                          clip-rule="evenodd"/>
+                    <path d="M6.25 8.043l-.896-.897a.5.5 0 10-.708.708l.897.896.707-.707zm1 2.414l.896.897a.5.5 0 00.708 0l7-7a.5.5 0 00-.708-.708L8.5 10.293l-.543-.543-.707.707z"/>
+                </svg>
+            </a>
+            <a id="lineSelectionButton" type="button" class="interactionButton middle">
+                <svg viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd"
+                          d="M13.854 3.646a.5.5 0 010 .708l-7 7a.5.5 0 01-.708 0l-3.5-3.5a.5.5 0 11.708-.708L6.5 10.293l6.646-6.647a.5.5 0 01.708 0z"
+                          clip-rule="evenodd"/>
+                </svg>
+            </a>
+            <a id="pointSelectionButton" type="button" class="interactionButton middle">
+                <svg viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" clip-rule="evenodd"/>
+                </svg>
+            </a>
+            <a id="selectionSelectionButton" type="button" class="interactionButton bottom">
+                <svg viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd"
+                          d="M8 1.288l-6.842 5.56L3.733 15h8.534l2.575-8.153L8 1.288zM16 6.5L8 0 0 6.5 3 16h10l3-9.5z"
+                          clip-rule="evenodd"/>
+                </svg>
+            </a>
+        </div>
+    </div>
+    <div id="actionModeDropdown" class="dropdown">
+        <a id="selectedActionMode" type="button" class="interactionButton selectedDropdownElement">
+            <svg id="svgMove" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" d="M6.5 8a.5.5 0 00-.5-.5H1.5a.5.5 0 000 1H6a.5.5 0 00.5-.5z"
+                      clip-rule="evenodd"/>
+                <path fill-rule="evenodd"
+                      d="M3.854 5.646a.5.5 0 00-.708 0l-2 2a.5.5 0 000 .708l2 2a.5.5 0 00.708-.708L2.207 8l1.647-1.646a.5.5 0 000-.708zM9.5 8a.5.5 0 01.5-.5h4.5a.5.5 0 010 1H10a.5.5 0 01-.5-.5z"
+                      clip-rule="evenodd"/>
+                <path fill-rule="evenodd"
+                      d="M12.146 5.646a.5.5 0 01.708 0l2 2a.5.5 0 010 .708l-2 2a.5.5 0 01-.708-.708L13.793 8l-1.647-1.646a.5.5 0 010-.708zM8 9.5a.5.5 0 00-.5.5v4.5a.5.5 0 001 0V10a.5.5 0 00-.5-.5z"
+                      clip-rule="evenodd"/>
+                <path fill-rule="evenodd"
+                      d="M5.646 12.146a.5.5 0 000 .708l2 2a.5.5 0 00.708 0l2-2a.5.5 0 00-.708-.708L8 13.793l-1.646-1.647a.5.5 0 00-.708 0zM8 6.5a.5.5 0 01-.5-.5V1.5a.5.5 0 011 0V6a.5.5 0 01-.5.5z"
+                      clip-rule="evenodd"/>
+                <path fill-rule="evenodd"
+                      d="M5.646 3.854a.5.5 0 010-.708l2-2a.5.5 0 01.708 0l2 2a.5.5 0 01-.708.708L8 2.207 6.354 3.854a.5.5 0 01-.708 0z"
+                      clip-rule="evenodd"/>
+            </svg>
+            <svg id="svgScale" class="hidden" viewBox="0 0 16 16" fill="currentColor"
+                 xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd"
+                      d="M1.464 10.536a.5.5 0 01.5.5v3h3a.5.5 0 010 1h-3.5a.5.5 0 01-.5-.5v-3.5a.5.5 0 01.5-.5z"
+                      clip-rule="evenodd"/>
+                <path fill-rule="evenodd"
+                      d="M5.964 10a.5.5 0 010 .707l-4.146 4.147a.5.5 0 01-.707-.708L5.257 10a.5.5 0 01.707 0zm8.854-8.854a.5.5 0 010 .708L10.672 6a.5.5 0 01-.708-.707l4.147-4.147a.5.5 0 01.707 0z"
+                      clip-rule="evenodd"/>
+                <path fill-rule="evenodd"
+                      d="M10.5 1.5A.5.5 0 0111 1h3.5a.5.5 0 01.5.5V5a.5.5 0 01-1 0V2h-3a.5.5 0 01-.5-.5zm4 9a.5.5 0 00-.5.5v3h-3a.5.5 0 000 1h3.5a.5.5 0 00.5-.5V11a.5.5 0 00-.5-.5z"
+                      clip-rule="evenodd"/>
+                <path fill-rule="evenodd"
+                      d="M10 9.964a.5.5 0 000 .708l4.146 4.146a.5.5 0 00.708-.707l-4.147-4.147a.5.5 0 00-.707 0zM1.182 1.146a.5.5 0 000 .708L5.328 6a.5.5 0 00.708-.707L1.889 1.146a.5.5 0 00-.707 0z"
+                      clip-rule="evenodd"/>
+                <path fill-rule="evenodd"
+                      d="M5.5 1.5A.5.5 0 005 1H1.5a.5.5 0 00-.5.5V5a.5.5 0 001 0V2h3a.5.5 0 00.5-.5z"
+                      clip-rule="evenodd"/>
+            </svg>
+            <svg id="svgRotate" class="hidden" viewBox="0 0 16 16" fill="currentColor"
+                 xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd"
+                      d="M2.854 7.146a.5.5 0 00-.708 0l-2 2a.5.5 0 10.708.708L2.5 8.207l1.646 1.647a.5.5 0 00.708-.708l-2-2zm13-1a.5.5 0 00-.708 0L13.5 7.793l-1.646-1.647a.5.5 0 00-.708.708l2 2a.5.5 0 00.708 0l2-2a.5.5 0 000-.708z"
+                      clip-rule="evenodd"/>
+                <path fill-rule="evenodd"
+                      d="M8 3a4.995 4.995 0 00-4.192 2.273.5.5 0 01-.837-.546A6 6 0 0114 8a.5.5 0 01-1.001 0 5 5 0 00-5-5zM2.5 7.5A.5.5 0 013 8a5 5 0 009.192 2.727.5.5 0 11.837.546A6 6 0 012 8a.5.5 0 01.501-.5z"
+                      clip-rule="evenodd"/>
+            </svg>
+            <svg id="svgCollapse" class="hidden" viewBox="0 0 16 16" fill="currentColor"
+                 xmlns="http://www.w3.org/2000/svg">
+                <!-- 3 dots -->
+                <path fill-rule="evenodd"
+                      d="M3 13a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zm0-5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zm0-5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"
+                      clip-rule="evenodd"/>
+                <!-- arrow -->
+                <path fill-rule="evenodd"
+                      d="M8.146 4.646a.5.5 0 01.708 0l3 3a.5.5 0 010 .708l-3 3a.5.5 0 01-.708-.708L10.793 8 8.146 5.354a.5.5 0 010-.708z"
+                      clip-rule="evenodd"/>
+                <path fill-rule="evenodd" d="M4 8a.5.5 0 01.5-.5H11a.5.5 0 010 1H4.5A.5.5 0 014 8z"
+                      clip-rule="evenodd"/>
+                <!-- 1 dot -->
+                <path fill-rule="evenodd" d="M14.5 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" clip-rule="evenodd"/>
+            </svg>
+            <svg id="svgRemove" class="hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"
+                 fill="currentColor">
+                <path fill-rule="evenodd"
+                      d="M2.5 1a1 1 0 00-1 1v1a1 1 0 001 1H3v9a2 2 0 002 2h6a2 2 0 002-2V4h.5a1 1 0 001-1V2a1 1 0 00-1-1H10a1 1 0 00-1-1H7a1 1 0 00-1 1H2.5zm3 4a.5.5 0 01.5.5v7a.5.5 0 01-1 0v-7a.5.5 0 01.5-.5zM8 5a.5.5 0 01.5.5v7a.5.5 0 01-1 0v-7A.5.5 0 018 5zm3 .5a.5.5 0 00-1 0v7a.5.5 0 001 0v-7z"
+                      clip-rule="evenodd"/>
+            </svg>
+        </a>
+        <div id="actionModeDropdownContent" class="dropdownContent">
+            <a id="moveActionButton" type="button" class="interactionButton top">
+                <svg viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M6.5 8a.5.5 0 00-.5-.5H1.5a.5.5 0 000 1H6a.5.5 0 00.5-.5z"
+                          clip-rule="evenodd"/>
+                    <path fill-rule="evenodd"
+                          d="M3.854 5.646a.5.5 0 00-.708 0l-2 2a.5.5 0 000 .708l2 2a.5.5 0 00.708-.708L2.207 8l1.647-1.646a.5.5 0 000-.708zM9.5 8a.5.5 0 01.5-.5h4.5a.5.5 0 010 1H10a.5.5 0 01-.5-.5z"
+                          clip-rule="evenodd"/>
+                    <path fill-rule="evenodd"
+                          d="M12.146 5.646a.5.5 0 01.708 0l2 2a.5.5 0 010 .708l-2 2a.5.5 0 01-.708-.708L13.793 8l-1.647-1.646a.5.5 0 010-.708zM8 9.5a.5.5 0 00-.5.5v4.5a.5.5 0 001 0V10a.5.5 0 00-.5-.5z"
+                          clip-rule="evenodd"/>
+                    <path fill-rule="evenodd"
+                          d="M5.646 12.146a.5.5 0 000 .708l2 2a.5.5 0 00.708 0l2-2a.5.5 0 00-.708-.708L8 13.793l-1.646-1.647a.5.5 0 00-.708 0zM8 6.5a.5.5 0 01-.5-.5V1.5a.5.5 0 011 0V6a.5.5 0 01-.5.5z"
+                          clip-rule="evenodd"/>
+                    <path fill-rule="evenodd"
+                          d="M5.646 3.854a.5.5 0 010-.708l2-2a.5.5 0 01.708 0l2 2a.5.5 0 01-.708.708L8 2.207 6.354 3.854a.5.5 0 01-.708 0z"
+                          clip-rule="evenodd"/>
+                </svg>
+            </a>
+            <a id="scaleActionButton" type="button" class="interactionButton middle hidden">
+                <svg viewBox="0 0 16 16" fill="currentColor"
+                     xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd"
+                          d="M1.464 10.536a.5.5 0 01.5.5v3h3a.5.5 0 010 1h-3.5a.5.5 0 01-.5-.5v-3.5a.5.5 0 01.5-.5z"
+                          clip-rule="evenodd"/>
+                    <path fill-rule="evenodd"
+                          d="M5.964 10a.5.5 0 010 .707l-4.146 4.147a.5.5 0 01-.707-.708L5.257 10a.5.5 0 01.707 0zm8.854-8.854a.5.5 0 010 .708L10.672 6a.5.5 0 01-.708-.707l4.147-4.147a.5.5 0 01.707 0z"
+                          clip-rule="evenodd"/>
+                    <path fill-rule="evenodd"
+                          d="M10.5 1.5A.5.5 0 0111 1h3.5a.5.5 0 01.5.5V5a.5.5 0 01-1 0V2h-3a.5.5 0 01-.5-.5zm4 9a.5.5 0 00-.5.5v3h-3a.5.5 0 000 1h3.5a.5.5 0 00.5-.5V11a.5.5 0 00-.5-.5z"
+                          clip-rule="evenodd"/>
+                    <path fill-rule="evenodd"
+                          d="M10 9.964a.5.5 0 000 .708l4.146 4.146a.5.5 0 00.708-.707l-4.147-4.147a.5.5 0 00-.707 0zM1.182 1.146a.5.5 0 000 .708L5.328 6a.5.5 0 00.708-.707L1.889 1.146a.5.5 0 00-.707 0z"
+                          clip-rule="evenodd"/>
+                    <path fill-rule="evenodd"
+                          d="M5.5 1.5A.5.5 0 005 1H1.5a.5.5 0 00-.5.5V5a.5.5 0 001 0V2h3a.5.5 0 00.5-.5z"
+                          clip-rule="evenodd"/>
+                </svg>
+            </a>
+            <a id="rotateActionButton" type="button" class="interactionButton middle hidden">
+                <svg viewBox="0 0 16 16" fill="currentColor"
+                     xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd"
+                          d="M2.854 7.146a.5.5 0 00-.708 0l-2 2a.5.5 0 10.708.708L2.5 8.207l1.646 1.647a.5.5 0 00.708-.708l-2-2zm13-1a.5.5 0 00-.708 0L13.5 7.793l-1.646-1.647a.5.5 0 00-.708.708l2 2a.5.5 0 00.708 0l2-2a.5.5 0 000-.708z"
+                          clip-rule="evenodd"/>
+                    <path fill-rule="evenodd"
+                          d="M8 3a4.995 4.995 0 00-4.192 2.273.5.5 0 01-.837-.546A6 6 0 0114 8a.5.5 0 01-1.001 0 5 5 0 00-5-5zM2.5 7.5A.5.5 0 013 8a5 5 0 009.192 2.727.5.5 0 11.837.546A6 6 0 012 8a.5.5 0 01.501-.5z"
+                          clip-rule="evenodd"/>
+                </svg>
+            </a>
+            <a id="collapseActionButton" type="button" class="interactionButton middle hidden">
+                <svg viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <!-- 3 dots -->
+                    <path fill-rule="evenodd"
+                          d="M3 13a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zm0-5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zm0-5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"
+                          clip-rule="evenodd"/>
+                    <!-- arrow -->
+                    <path fill-rule="evenodd"
+                          d="M8.146 4.646a.5.5 0 01.708 0l3 3a.5.5 0 010 .708l-3 3a.5.5 0 01-.708-.708L10.793 8 8.146 5.354a.5.5 0 010-.708z"
+                          clip-rule="evenodd"/>
+                    <path fill-rule="evenodd" d="M4 8a.5.5 0 01.5-.5H11a.5.5 0 010 1H4.5A.5.5 0 014 8z"
+                          clip-rule="evenodd"/>
+                    <!-- 1 dot -->
+                    <path fill-rule="evenodd" d="M14.5 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" clip-rule="evenodd"/>
+                </svg>
+            </a>
+            <a id="removeActionButton" type="button" class="interactionButton bottom">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
+                    <path fill-rule="evenodd"
+                          d="M2.5 1a1 1 0 00-1 1v1a1 1 0 001 1H3v9a2 2 0 002 2h6a2 2 0 002-2V4h.5a1 1 0 001-1V2a1 1 0 00-1-1H10a1 1 0 00-1-1H7a1 1 0 00-1 1H2.5zm3 4a.5.5 0 01.5.5v7a.5.5 0 01-1 0v-7a.5.5 0 01.5-.5zM8 5a.5.5 0 01.5.5v7a.5.5 0 01-1 0v-7A.5.5 0 018 5zm3 .5a.5.5 0 00-1 0v7a.5.5 0 001 0v-7z"
+                          clip-rule="evenodd"/>
+                </svg>
+            </a>
+        </div>
+    </div>
+</div>
+<div id="rightSide">
+    <video id="video">
+        <source src="{{ url_for('static', filename='videos/egovideo.mp4') }}" preload="auto" type="video/mp4"/>
+    </video>
+    <div id="boxes"></div>
+    <div id="elementSelector" data-svg_base_url="{{ url_for('static', filename='images/class') }}">
+        {% for trajectory in trajectories %}
+            <div id="id{{ trajectory.id }}" class="element hidden" onclick="handle_click_element(event);"
+                 onmouseenter="handle_mouseenter_descriptor(event);" onmouseleave="handle_mouseleave_element(event);">
+                <div class="elementSVGContainer">
+                    <img class="svgImg"
+                         src="{{ url_for('static', filename='images/class'+trajectory.type|string+'.svg') }}"
+                         onload="SVGInject(this)"/>
+                </div>
+                <p class="elementText">
+                    {% if trajectory.type == 1 %}
+                        Car
+                    {% elif trajectory.type == 2 %}
+                        Truck
+                    {% elif trajectory.type == 3 %}
+                        Bus
+                    {% elif trajectory.type == 4 %}
+                        Bicycle
+                    {% elif trajectory.type == 5 %}
+                        Motorcycle
+                    {% elif trajectory.type == 6 %}
+                        Trailer
+                    {% elif trajectory.type == 7 %}
+                        Tram
+                    {% elif trajectory.type == 8 %}
+                        Train
+                    {% elif trajectory.type == 9 %}
+                        Caravan
+                    {% elif trajectory.type == 10 %}
+                        Agricultural vehicle
+                    {% elif trajectory.type == 11 %}
+                        Construction vehicle
+                    {% elif trajectory.type == 12 %}
+                        Emergency vehicle
+                    {% elif trajectory.type == 13 %}
+                        Passive vehicle
+                    {% elif trajectory.type == 14 %}
+                        Person
+                    {% elif trajectory.type == 15 %}
+                        Large animal
+                    {% elif trajectory.type == 16 %}
+                        Small animal
+                    {% else %}
+                        User defined
+                    {% endif %}
+                    <br/>
+                    {{ trajectory.id }}
+                </p>
+                <div class="elementSizeSection">
+                    <p id="id{{ trajectory.id }}size" class="sizeText">dummy m * dummy m * dummy m</p>
+                        <div class="sizeButtonArea">
+                            <a data-id="id{{ trajectory.id }}" type="button" class="interactionButton sizeButton"
+                               onclick="set_size(event)">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                          d="M1.464 10.536a.5.5 0 01.5.5v3h3a.5.5 0 010 1h-3.5a.5.5 0 01-.5-.5v-3.5a.5.5 0 01.5-.5z"
+                                          clip-rule="evenodd"/>
+                                    <path fill-rule="evenodd"
+                                          d="M5.964 10a.5.5 0 010 .707l-4.146 4.147a.5.5 0 01-.707-.708L5.257 10a.5.5 0 01.707 0zm8.854-8.854a.5.5 0 010 .708L10.672 6a.5.5 0 01-.708-.707l4.147-4.147a.5.5 0 01.707 0z"
+                                          clip-rule="evenodd"/>
+                                    <path fill-rule="evenodd"
+                                          d="M10.5 1.5A.5.5 0 0111 1h3.5a.5.5 0 01.5.5V5a.5.5 0 01-1 0V2h-3a.5.5 0 01-.5-.5zm4 9a.5.5 0 00-.5.5v3h-3a.5.5 0 000 1h3.5a.5.5 0 00.5-.5V11a.5.5 0 00-.5-.5z"
+                                          clip-rule="evenodd"/>
+                                    <path fill-rule="evenodd"
+                                          d="M10 9.964a.5.5 0 000 .708l4.146 4.146a.5.5 0 00.708-.707l-4.147-4.147a.5.5 0 00-.707 0zM1.182 1.146a.5.5 0 000 .708L5.328 6a.5.5 0 00.708-.707L1.889 1.146a.5.5 0 00-.707 0z"
+                                          clip-rule="evenodd"/>
+                                    <path fill-rule="evenodd"
+                                          d="M5.5 1.5A.5.5 0 005 1H1.5a.5.5 0 00-.5.5V5a.5.5 0 001 0V2h3a.5.5 0 00.5-.5z"
+                                          clip-rule="evenodd"/>
+                                </svg>
+                            </a>
+                        </div>
+                </div>
+                <div data-id="id{{ trajectory.id }}" class="elementButtonRegion">
+                    <a type="button" class="interactionButton elementButton interpolateButton" onclick="interpolate_points(event)">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                  d="M3.646 14.354a.5.5 0 00.708 0L8 10.707l3.646 3.647a.5.5 0 00.708-.708l-4-4a.5.5 0 00-.708 0l-4 4a.5.5 0 000 .708zm0-12.208a.5.5 0 01.708 0L8 5.793l3.646-3.647a.5.5 0 01.708.708l-4 4a.5.5 0 01-.708 0l-4-4a.5.5 0 010-.708z"
+                                  clip-rule="evenodd"/>
+                            <path fill-rule="evenodd" d="M8 3a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
+                            <path fill-rule="evenodd" d="M8 9.25a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
+                            <path fill-rule="evenodd" d="M8 15a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
+                        </svg>
+                    </a>
+                    <a type="button" class="interactionButton elementButton addButton" onclick="add_point(event)">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
+                            <path fill-rule="evenodd" d="M3.5 8a.5.5 0 01.5-.5h8a.5.5 0 010 1h-8a.5.5 0 01-.5-.5z"
+                                  clip-rule="evenodd"/>
+                            <path fill-rule="evenodd"
+                                  d="M8 3.5a.5.5 0 01.5.5v4a.5.5 0 01-.5.5H4a.5.5 0 010-1h3.5V4a.5.5 0 01.5-.5z"
+                                  clip-rule="evenodd"/>
+                            <path fill-rule="evenodd"
+                                  d="M7.5 8a.5.5 0 01.5-.5h4a.5.5 0 010 1H8.5V12a.5.5 0 01-1 0V8z"
+                                  clip-rule="evenodd"/>
+                        </svg>
+                    </a>
+                    <a type="button" class="interactionButton elementButton orientationButton" onclick="set_object_orientation(event)">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
+                            <path fill-rule="evenodd" d="M4 13a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"
+                                  clip-rule="evenodd"/>
+                            <path fill-rule="evenodd"
+                                  d="M6.146 4a.5.5 0 01.5-.5h5a.5.5 0 01.5.5v5a.5.5 0 01-1 0V4.5H6.646a.5.5 0 01-.5-.5z"
+                                  clip-rule="evenodd"/>
+                            <path fill-rule="evenodd"
+                                  d="M12 3.646a.5.5 0 010 .708l-6 6a.5.5 0 01-.708-.708l6-6a.5.5 0 01.708 0z"
+                                  clip-rule="evenodd"/>
+                        </svg>
+                    </a>
+                <a type="button" class="interactionButton elementButton smoothButton" onclick="smooth_object(event)">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
+                        <path fill-rule="evenodd" d="M14.39 4.312L10.041 9.75 7 6.707l-3.646 3.647-.708-.708L7 5.293 9.959 8.25l3.65-4.563.781.624z"/>
+                        <path fill-rule="evenodd" d="M14.39 4.312L10.041 9.75 7 6.707l-3.646 3.647-.708-.708L7 5.293 9.959 8.25l3.65-4.563.781.624z"/>
+                    </svg>
+                </a>
+                    {% if not trajectory.id == 0 %}
+                        <a type="button" class="interactionButton elementButton" onclick="remove_object(event)">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                      d="M2.5 1a1 1 0 00-1 1v1a1 1 0 001 1H3v9a2 2 0 002 2h6a2 2 0 002-2V4h.5a1 1 0 001-1V2a1 1 0 00-1-1H10a1 1 0 00-1-1H7a1 1 0 00-1 1H2.5zm3 4a.5.5 0 01.5.5v7a.5.5 0 01-1 0v-7a.5.5 0 01.5-.5zM8 5a.5.5 0 01.5.5v7a.5.5 0 01-1 0v-7A.5.5 0 018 5zm3 .5a.5.5 0 00-1 0v7a.5.5 0 001 0v-7z"
+                                      clip-rule="evenodd"/>
+                            </svg>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+        <div id="addButtonWrapper">
+            <a type="button" class="interactionButton" onclick="add_new_object()">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
+                    <path fill-rule="evenodd"
+                          d="M8 3.5a.5.5 0 01.5.5v4a.5.5 0 01-.5.5H4a.5.5 0 010-1h3.5V4a.5.5 0 01.5-.5z"
+                          clip-rule="evenodd"/>
+                    <path fill-rule="evenodd" d="M7.5 8a.5.5 0 01.5-.5h4a.5.5 0 010 1H8.5V12a.5.5 0 01-1 0V8z"
+                          clip-rule="evenodd"/>
+                </svg>
+            </a>
+        </div>
+    </div>
+    <a id="changesButton" type="button" class="interactionButton hidden">
+        <svg id="changesSVG" viewBox="0 0 16 16"
+             fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 1h5v1H4a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V6h1v7a2 2 0 01-2 2H4a2 2 0 01-2-2V3a2 2 0 012-2z"/>
+            <path d="M9 4.5V1l5 5h-3.5A1.5 1.5 0 019 4.5z"/>
+            <path d="M5.5 11.5A.5.5 0 016 11h4a.5.5 0 010 1H6a.5.5 0 01-.5-.5z" color="#f74c43"></path>
+            <path d="M5.5 7.5A.5.5 0 016 7h4a.5.5 0 010 1H6a.5.5 0 01-.5-.5zM8 5a.5.5 0 01.5.5v4a.5.5 0 01-1 0v-4A.5.5 0 018 5z"
+                  color="#3de369"></path>
+        </svg>
+    </a>
+    <a id="savingButton" type="button" class="interactionButton hidden">
+        <svg id="savingSVG" viewBox="0 0 16 16" fill="currentColor"
+             xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd"
+                  d="M11.293 1.293a1 1 0 011.414 0l2 2a1 1 0 010 1.414l-9 9a1 1 0 01-.39.242l-3 1a1 1 0 01-1.266-1.265l1-3a1 1 0 01.242-.391l9-9zM12 2l2 2-9 9-3 1 1-3 9-9z"
+                  clip-rule="evenodd"/>
+            <path fill-rule="evenodd"
+                  d="M12.146 6.354l-2.5-2.5.708-.708 2.5 2.5-.707.708zM3 10v.5a.5.5 0 00.5.5H4v.5a.5.5 0 00.5.5H5v.5a.5.5 0 00.5.5H6v-1.5a.5.5 0 00-.5-.5H5v-.5a.5.5 0 00-.5-.5H3z"
+                  clip-rule="evenodd"/>
+        </svg>
+    </a>
+    <a id="savedButton" type="button" class="interactionButton">
+        <svg id="savedSVG" viewBox="0 0 16 16"
+             fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 1H4a2 2 0 00-2 2v10a2 2 0 002 2h5v-1H4a1 1 0 01-1-1V3a1 1 0 011-1h5v2.5A1.5 1.5 0 0010.5 6H13v2h1V6L9 1z"/>
+            <path color="#3de369" fill-rule="evenodd"
+                  d="M15.854 10.146a.5.5 0 010 .708l-3 3a.5.5 0 01-.708 0l-1.5-1.5a.5.5 0 01.708-.708l1.146 1.147 2.646-2.647a.5.5 0 01.708 0z"
+                  clip-rule="evenodd"/>
+        </svg>
+    </a>
+</div>
+<div id="timeline">
+    <a id="playButton" type="button" class="item myButton">
+        <svg viewBox="0 0 16 16"
+             fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12.14 8.753l-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 011.659-.753l5.48 4.796a1 1 0 010 1.506z"/>
+        </svg>
+    </a>
+    <a id="pauseButton" type="button" class="item myButton hidden">
+        <svg viewBox="0 0 16 16"
+             fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path d="M5.5 3.5A1.5 1.5 0 017 5v6a1.5 1.5 0 01-3 0V5a1.5 1.5 0 011.5-1.5zm5 0A1.5 1.5 0 0112 5v6a1.5 1.5 0 01-3 0V5a1.5 1.5 0 011.5-1.5z"/>
+        </svg>
+    </a>
+    <a id="loopButton" type="button" class="item myButton">
+        <svg viewBox="0 0 16 16" fill="currentColor"
+             xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd"
+                  d="M3.17 6.706a5 5 0 017.103-3.16.5.5 0 10.454-.892A6 6 0 1013.455 5.5a.5.5 0 00-.91.417 5 5 0 11-9.375.789z"
+                  clip-rule="evenodd"/>
+            <path fill-rule="evenodd"
+                  d="M8.147.146a.5.5 0 01.707 0l2.5 2.5a.5.5 0 010 .708l-2.5 2.5a.5.5 0 11-.707-.708L10.293 3 8.147.854a.5.5 0 010-.708z"
+                  clip-rule="evenodd"/>
+        </svg>
+    </a>
+    <input id="timelineRange" type="range" min=0 max="{{ nr_frames - 1 }}" step="1" value="0"/>
+    <div id="rightTime">
+        00:00/000
+    </div>
+</div>
+<div id="popupContainer">
+    <form id="addPointsPopup" class="popup hide-submit hidden" onsubmit="add_points_form_submitted();return false">
+        <div id="switchContainer" class="switchContainer">
+            <p class="switchContainerElement">Before</p>
+            <label class="switch switchContainerElement">
+                <input id="newPointDirection" type="checkbox" checked>
+                <span class="slider round"></span>
+            </label>
+            <p class="switchContainerElement">After</p>
+        </div>
+        <div id="frameToStart" class="switchContainer hidden">
+            <label for="frameToStartInput" class="switchContainerElement">Starting frame:</label>
+            <input type="text" id="frameToStartInput" name="frameToStartInput" class="switchContainerElement">
+        </div>
+        <div class="switchContainer">
+            <label for="numberOfPoints" class="switchContainerElement">How many Points:</label>
+            <input type="text" id="numberOfPoints" value="1" name="numberOfPoints" class="switchContainerElement">
+        </div>
+        <div class="switchContainer">
+            <label class="switchContainerElement">
+                <input type="submit"/>
+                <div class="interactionButton">
+                    <svg viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd"
+                              d="M13.854 3.646a.5.5 0 010 .708l-7 7a.5.5 0 01-.708 0l-3.5-3.5a.5.5 0 11.708-.708L6.5 10.293l6.646-6.647a.5.5 0 01.708 0z"
+                              clip-rule="evenodd"/>
+                    </svg>
+                </div>
+            </label>
+            <a id="addFormAbortButton" type="button" class="interactionButton switchContainerElement">
+                <svg viewBox="0 0 16 16" fill="currentColor">
+                    <path fill-rule="evenodd"
+                          d="M11.854 4.146a.5.5 0 010 .708l-7 7a.5.5 0 01-.708-.708l7-7a.5.5 0 01.708 0z"
+                          clip-rule="evenodd"/>
+                    <path fill-rule="evenodd"
+                          d="M4.146 4.146a.5.5 0 000 .708l7 7a.5.5 0 00.708-.708l-7-7a.5.5 0 00-.708 0z"
+                          clip-rule="evenodd"/>
+                </svg>
+            </a>
+        </div>
+    </form>
+    <form id="changeSizePopup" class="popup hide-submit hidden" onsubmit="change_size_form_submit();return false">
+        <div class="switchContainer">
+            <label for="widthInput" class="switchContainerElement">Width:</label>
+            <input type="text" id="widthInput" name="widthInput" class="switchContainerElement">
+        </div>
+        <div class="switchContainer">
+            <label for="lengthInput" class="switchContainerElement">Length:</label>
+            <input type="text" id="lengthInput" name="lengthInput" class="switchContainerElement">
+        </div>
+        <div class="switchContainer">
+            <label for="heightInput" class="switchContainerElement">Height:</label>
+            <input type="text" id="heightInput" name="heightInput" class="switchContainerElement">
+        </div>
+        <div class="switchContainer">
+            <label class="switchContainerElement">
+                <input type="submit"/>
+                <div class="interactionButton">
+                    <svg viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd"
+                              d="M13.854 3.646a.5.5 0 010 .708l-7 7a.5.5 0 01-.708 0l-3.5-3.5a.5.5 0 11.708-.708L6.5 10.293l6.646-6.647a.5.5 0 01.708 0z"
+                              clip-rule="evenodd"/>
+                    </svg>
+                </div>
+            </label>
+            <a id="changeSizeAbortButton" type="button" class="interactionButton switchContainerElement">
+                <svg viewBox="0 0 16 16" fill="currentColor">
+                    <path fill-rule="evenodd"
+                          d="M11.854 4.146a.5.5 0 010 .708l-7 7a.5.5 0 01-.708-.708l7-7a.5.5 0 01.708 0z"
+                          clip-rule="evenodd"/>
+                    <path fill-rule="evenodd"
+                          d="M4.146 4.146a.5.5 0 000 .708l7 7a.5.5 0 00.708-.708l-7-7a.5.5 0 00-.708 0z"
+                          clip-rule="evenodd"/>
+                </svg>
+            </a>
+        </div>
+    </form>
+    <form id="addNewElementPopup" class="popup hide-submit hidden"
+          onsubmit="add_new_element_form_submit();return false">
+        <div class="switchContainer">
+            <label for="elementType">Object type:</label>
+            <select id="elementType" name="elementType" value=0>
+                <option value=1>Car</option>
+                <option value=2>Truck</option>
+                <option value=3>Bus</option>
+                <option value=4>Bicycle</option>
+                <option value=5>Motorcycle</option>
+                <option value=6>Trailer</option>
+                <option value=7>Tram</option>
+                <option value=8>Train</option>
+                <option value=9>Caravan</option>
+                <option value=10>Agricultural vehicle</option>
+                <option value=11>Construction vehicle</option>
+                <option value=12>Emergency vehicle</option>
+                <option value=13>Passive vehicle</option>
+                <option value=14>Person</option>
+                <option value=15>Large animal</option>
+                <option value=16>Small animal</option>
+                <option value=0>User defined</option>
+            </select>
+        </div>
+        <div class="switchContainer">
+            <label for="widthInput" class="switchContainerElement">Width:</label>
+            <input type="text" id="newWidthInput" name="widthInput" class="switchContainerElement">
+        </div>
+        <div class="switchContainer">
+            <label for="lengthInput" class="switchContainerElement">Length:</label>
+            <input type="text" id="newLengthInput" name="lengthInput" class="switchContainerElement">
+        </div>
+        <div class="switchContainer">
+            <label for="heightInput" class="switchContainerElement">Height:</label>
+            <input type="text" id="newHeightInput" name="heightInput" class="switchContainerElement">
+        </div>
+        <div class="switchContainer">
+            <label class="switchContainerElement">
+                <input type="submit"/>
+                <div class="interactionButton">
+                    <svg viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd"
+                              d="M13.854 3.646a.5.5 0 010 .708l-7 7a.5.5 0 01-.708 0l-3.5-3.5a.5.5 0 11.708-.708L6.5 10.293l6.646-6.647a.5.5 0 01.708 0z"
+                              clip-rule="evenodd"/>
+                    </svg>
+                </div>
+            </label>
+            <a id="newElementAbortButton" type="button" class="interactionButton switchContainerElement">
+                <svg viewBox="0 0 16 16" fill="currentColor">
+                    <path fill-rule="evenodd"
+                          d="M11.854 4.146a.5.5 0 010 .708l-7 7a.5.5 0 01-.708-.708l7-7a.5.5 0 01.708 0z"
+                          clip-rule="evenodd"/>
+                    <path fill-rule="evenodd"
+                          d="M4.146 4.146a.5.5 0 000 .708l7 7a.5.5 0 00.708-.708l-7-7a.5.5 0 00-.708 0z"
+                          clip-rule="evenodd"/>
+                </svg>
+            </a>
+        </div>
+    </form>
+</div>
+</body>
+</html>

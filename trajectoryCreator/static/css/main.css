@@ -1,0 +1,270 @@
+body {
+    font: bold 1em 'Lucida Console', Monaco, monospace;
+}
+
+.container {
+    display: flex;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: stretch;
+}
+
+.left {
+    width: 50%;
+    min-width: 10em;
+    max-width: 80%;
+    item: 1;
+    resize: horizontal;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    border-right: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+.right {
+    item: 2;
+    flex-grow: 2;
+}
+
+#settings-section {
+    width: 100%;
+    height: 5em;
+    item: 1;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-around;
+    border-bottom: 1px solid grey;
+}
+
+#task-list-section {
+    position: relative;
+    width: 100%;
+    item: 2;
+    flex-grow: 2;
+    overflow-y: auto;
+}
+
+#map-symbol-container {
+    position: relative;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#map-symbol {
+    position: relative;
+    max-width: 50%;
+    max-height: 50%;
+    width: 50%;
+    color: rgb(59, 173, 227) !important;
+}
+
+#start-batch-process-button {
+    item: 1;
+    flex-grow: 1;
+}
+
+#settings-button {
+    item: 2;
+    flex-grow: 1;
+}
+
+.leftButton {
+    position: relative;
+    color: rgb(59, 173, 227) !important;
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.leftButton:hover {
+    background-color: rgb(59, 173, 227);
+    color: white !important;
+    cursor: pointer;
+}
+
+.leftButton.inactive {
+    color: rgb(140, 140, 140) !important;
+}
+
+.leftButton.inactive:hover {
+    background-color: rgb(140, 140, 140) !important;
+}
+
+
+.leftButton > svg {
+    position: absolute;
+    height: 75%;
+}
+
+.task {
+    position: relative;
+    width: 100%;
+    height: 4em;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+.progressMeter {
+    position: absolute;
+    height: 100%;
+    top: 0px;
+    left: 0px;
+    z-index: 1;
+}
+
+.goodState {
+    background-color: #3de369;
+}
+
+.failedState {
+    background-color: #f74c43;
+}
+
+.progressText {
+    position: relative;
+    text-align: center;
+    padding-top: 1.5em;
+    z-index: 2;
+}
+
+.taskName {
+    position: absolute;
+    left: 0px;
+    bottom: 0px;
+    padding-bottom: .2em;
+    padding-left: .5em;
+    z-index: 2;
+}
+
+.removeTaskButton {
+    position: absolute;
+    height: 4em;
+    z-index: 3;
+    right: 0px;
+    width: 4em;
+    top: 0px;
+}
+
+.progressMeter.goodState ~ .removeTaskButton{
+    color: #f74c43;
+}
+
+.progressMeter.failedState ~ .removeTaskButton{
+    color: white;
+    background-color: #f74c43;
+}
+
+.progressMeter.goodState ~ .removeTaskButton:hover {
+    background-color: #f74c43;
+    color: white;
+    cursor: pointer;
+}
+
+.progressMeter.failedState ~ .removeTaskButton:hover{
+    color: #f74c43;
+    background-color: white;
+}
+
+.hidden {
+    display: none !important;
+}
+
+#settings-container {
+    position: relative;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    background-color: white;
+}
+
+.section {
+    padding-left: 1em;
+}
+
+.sectionLabel {
+    font-size: 1.5em;
+}
+
+.section > :not(.sectionLabel) {
+    margin-left: 1em;
+}
+
+#sections {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 3em;
+    overflow-y: auto;
+}
+
+#settingsMainButtons {
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    height: 3em;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: stretch;
+    border-top: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+.myButton {
+    position: relative;
+    height: 3em;
+    width: 3em;
+    margin-left: 1em;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: rgb(59, 173, 227) !important;
+    flex-grow: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.myButton:hover {
+    background-color: #fff;
+    cursor: pointer;
+}
+
+.fileSelectionButton {
+    width: 26em;
+    border-radius: 1.5em;
+    border: 1px solid white;
+}
+
+#yoloSelection {
+    width: 36em;
+}
+
+.detectorSelectionButton:hover {
+    border: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+#settingsApplyButton:hover {
+    background-color: #3de369;
+    cursor: pointer;
+}
+
+#settingsCancelButton:hover {
+    background-color: #f74c43;
+    cursor: pointer;
+}

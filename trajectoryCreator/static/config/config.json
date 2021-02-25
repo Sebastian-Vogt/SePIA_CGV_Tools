@@ -1,0 +1,27 @@
+{
+    "geoTiffPaths": [
+        "D:\\Dokumente\\Uni\\SePIA\\SePIA CGV Tools\\creator+modifier+calibration\\creator\\static\\tiles\\n50_e011_1arc_v3.tif",
+        "D:\\Dokumente\\Uni\\SePIA\\SePIA CGV Tools\\creator+modifier+calibration\\creator\\static\\tiles\\n50_e012_1arc_v3.tif",
+        "D:\\Dokumente\\Uni\\SePIA\\SePIA CGV Tools\\creator+modifier+calibration\\creator\\static\\tiles\\n50_e013_1arc_v3.tif",
+        "D:\\Dokumente\\Uni\\SePIA\\SePIA CGV Tools\\creator+modifier+calibration\\creator\\static\\tiles\\n50_e014_1arc_v3.tif",
+        "D:\\Dokumente\\Uni\\SePIA\\SePIA CGV Tools\\creator+modifier+calibration\\creator\\static\\tiles\\n50_e015_1arc_v3.tif",
+        "D:\\Dokumente\\Uni\\SePIA\\SePIA CGV Tools\\creator+modifier+calibration\\creator\\static\\tiles\\n51_e011_1arc_v3.tif",
+        "D:\\Dokumente\\Uni\\SePIA\\SePIA CGV Tools\\creator+modifier+calibration\\creator\\static\\tiles\\n51_e012_1arc_v3.tif",
+        "D:\\Dokumente\\Uni\\SePIA\\SePIA CGV Tools\\creator+modifier+calibration\\creator\\static\\tiles\\n51_e013_1arc_v3.tif",
+        "D:\\Dokumente\\Uni\\SePIA\\SePIA CGV Tools\\creator+modifier+calibration\\creator\\static\\tiles\\n51_e014_1arc_v3.tif",
+        "D:\\Dokumente\\Uni\\SePIA\\SePIA CGV Tools\\creator+modifier+calibration\\creator\\static\\tiles\\n51_e015_1arc_v3.tif"
+    ],
+    "carFilePath": "D:\\Dokumente\\Uni\\SePIA\\SePIA CGV Tools\\creator+modifier+calibration\\creator\\static\\config\\carFile_lina.json",
+    "carAssignmentFilePath": "D:\\Dokumente\\Uni\\SePIA\\SePIA CGV Tools\\creator+modifier+calibration\\creator\\static\\config\\assignment_lina.json",
+    "detectorPath": "D:\\Dokumente\\Uni\\SePIA\\SePIA CGV Tools\\creator+modifier+calibration\\creator\\weights\\resnet50_csv_04_inference.h5",
+    "yoloPath": "D:\\Dokumente\\Uni\\SePIA\\SePIA CGV Tools\\creator+modifier+calibration\\creator\\weights\\yolov5x.pt",
+    "minOccurrences": 3,
+    "maxAge": 25,
+    "simThreshold": 0.15,
+    "detThreshold": 0.4,
+    "trackLabelVideo": false,
+    "trackIdVideo": false,
+    "relativeDistanceVideo": false,
+    "poolSize": 30,
+    "concurrentGPUProcesses": 1
+}
