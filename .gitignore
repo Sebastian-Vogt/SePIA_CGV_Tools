@@ -127,5 +127,5 @@ dmypy.json
 
 # weights and cudnn
 cudnn-10.1-windows10-x64-v7.6.5.32.zip
-.pt
-.h5
+*.pt
+*.h5
