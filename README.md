@@ -75,14 +75,15 @@ Ist der Treiber nicht installiert werden die Tabellen als .csv Dateien gespeiche
 
 	ERROR: Command errored out with exit status 1: '...\Anaconda3\envs\sepia\python.exe' -u -c 'import sys, setuptools, tokenize; sys.argv[0] = '"'"'...\\AppData\\Local\\Temp\\pip-req-build-fk3v76cp\\setup.py'"'"'; __file__='"'"'...\\AppData\\Local\\Temp\\pip-req-build-fk3v76cp\\setup.py'"'"';f=getattr(tokenize, '"'"'open'"'"', open)(__file__);code=f.read().replace('"'"'\r\n'"'"', '"'"'\n'"'"');f.close();exec(compile(code, __file__, '"'"'exec'"'"'))' install --record '...\AppData\Local\Temp\pip-record-wfby_3gj\install-record.txt' --single-version-externally-managed --user --prefix= --compile --install-headers '...\AppData\Roaming\Python\Python38\Include\keras-retinanet' Check the logs for full command output.```
 	
-	**Lösung:** Microsoft Visual C++ 14.0 oder größer inklusive Windows 10 SDK muss installiert werden. (Siehe Punkt 2 der Installationsanleitung.)
+**Lösung:** Microsoft Visual C++ 14.0 oder größer inklusive Windows 10 SDK muss installiert werden. (Siehe Punkt 2 der Installationsanleitung.)
 
 - 	```...
 	building 'keras_retinanet.utils.compute_overlap' extension
 	error: Microsoft Visual C++ 14.0 or greater is required. Get it with "Microsoft C++ Build Tools": https://visualstudio.microsoft.com/visual-cpp-build-tools/
 		----------------------------------------
 	ERROR: Command errored out with exit status 1: '...\Anaconda3\envs\sepia\python.exe' -u -c 'import sys, setuptools, tokenize; sys.argv[0] = '"'"'...\\AppData\\Local\\Temp\\pip-req-build-yhyfhdba\\setup.py'"'"'; __file__='"'"'...\\AppData\\Local\\Temp\\pip-req-build-yhyfhdba\\setup.py'"'"';f=getattr(tokenize, '"'"'open'"'"', open)(__file__);code=f.read().replace('"'"'\r\n'"'"', '"'"'\n'"'"');f.close();exec(compile(code, __file__, '"'"'exec'"'"'))' install --record '...\AppData\Local\Temp\pip-record-zt_sn_ug\install-record.txt' --single-version-externally-managed --user --prefix= --compile --install-headers '...\AppData\Roaming\Python\Python38\Include\keras-retinanet' Check the logs for full command output.```
-	**Lösung:** Microsoft Visual C++ 14.0 oder größer inklusive Windows 10 SDK muss installiert werden. (Siehe Punkt 2 der Installationsanleitung.)
+	
+**Lösung:** Microsoft Visual C++ 14.0 oder größer inklusive Windows 10 SDK muss installiert werden. (Siehe Punkt 2 der Installationsanleitung.)
 
 -	Beim Ausführen:
 	```(base) ...\SePIA_CGV_Tools_Repository\trajectoryCreator>python app.py Traceback (most recent call last):
@@ -94,8 +95,7 @@ Ist der Treiber nicht installiert werden die Tabellen als .csv Dateien gespeiche
 		from flaskwebgui import FlaskUI
 	ModuleNotFoundError: No module named 'flaskwebgui'```
 
-
-	**Lösung:** Die korrekte Anacondaumgebung ist nicht aktiviert. (Siehe Ausführen Punkt 2) Das muss bei jedem Start der Anaconda Prompt gemacht werden.
+**Lösung:** Die korrekte Anacondaumgebung ist nicht aktiviert. (Siehe Ausführen Punkt 2) Das muss bei jedem Start der Anaconda Prompt gemacht werden.
 
 -	Beim Ausführen:
 	```(sepia) ...\SePIA_CGV_Tools_Repository\trajectoryCreator>python app.py [WinError 2] Das System kann die angegebene Datei nicht finden
