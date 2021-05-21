@@ -1032,6 +1032,11 @@ function dropElementDescriptor(ev) {
         }
         if (confirm("You are going to merge object with id " + id2.replace("id","") + " into object with id " + id1.replace("id","") + ". Are you sure that you want to do this?") == true) {
             merge_objects(id1, id2);
+            changes = true;
+            const saved_button = document.getElementById("savedButton");
+            saved_button.classList.toggle("hidden");
+            const changes_button = document.getElementById("changesButton");
+            changes_button.classList.toggle("hidden");
         }
     }
     dragEndElementDescriptor();
