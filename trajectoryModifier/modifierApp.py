@@ -2,7 +2,7 @@ import json
 import tkinter as tk
 from tkinter import filedialog
 import os
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_from_directory
 from flaskwebgui import FlaskUI
 import cv2
 import sys
@@ -35,6 +35,9 @@ def setup_logging():
         app.logger.addHandler(logging.StreamHandler())
         app.logger.setLevel(logging.INFO)
 
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static/images'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 @app.route("/recalibrate", methods=['POST'])
 def recalibrate():
