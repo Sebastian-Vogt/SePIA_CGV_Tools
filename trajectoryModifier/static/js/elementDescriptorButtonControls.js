@@ -76,6 +76,13 @@ function interpolate_points(event) {
  */
 function remove_object(event) {
     const trajectory_id = event.target.closest(".elementButtonRegion").getAttribute("data-id");
+    remove_object_by_ID(trajectory_id);
+}
+
+/**
+ * Removes an object by id
+ */
+function remove_object_by_ID(trajectory_id) {
     let trajectory_index = trajectories.findIndex(t => "id"+t.id === trajectory_id);
 
     trajectories.splice(trajectory_index, 1);
@@ -110,6 +117,104 @@ function remove_object(event) {
     set_line_colors();
     set_box_colors();
     redraw_object_map_object_outlines();
+}
+
+/**
+ * Merges two objects
+ */
+function merge_objects(trajectory_id1, trajectory_id2) {
+    // ids will begin with an "id" -> do not match actual ids
+    let trajectory_index1 = trajectories.findIndex(t => "id"+t.id === trajectory_id1);
+    const trajectory_index2 = trajectories.findIndex(t => "id"+t.id === trajectory_id2);
+
+    // add non existing frames (unsorted)
+    for(let p = 0; p < trajectories[trajectory_index2].positions_rotations_and_boxes.length; p++){
+        if(trajectories[trajectory_index1].positions_rotations_and_boxes.findIndex(e => e.frame === trajectories[trajectory_index2].positions_rotations_and_boxes[p].frame) == -1){
+            trajectories[trajectory_index1].positions_rotations_and_boxes.push(trajectories[trajectory_index2].positions_rotations_and_boxes[p]);
+        }
+    }
+
+    const boxes_index1 = original_boxes.findIndex(e => "id"+e.id === trajectory_id1);
+    const boxes_index2 = original_boxes.findIndex(e => "id"+e.id === trajectory_id2);
+    for(let bi = 0; bi < original_boxes[boxes_index2].boxes.length; bi++){
+        if(original_boxes[boxes_index1].boxes.findIndex(e => e.frame === original_boxes[boxes_index2].boxes[bi].frame) == -1){
+            original_boxes[boxes_index1].boxes.push(original_boxes[boxes_index2].boxes[bi]);
+        }
+    }
+    // sort by frame
+    trajectories[trajectory_index1].positions_rotations_and_boxes.sort(function (a, b) { return a.frame - b.frame;});
+    original_boxes[boxes_index1].boxes.sort(function (a, b) { return a.frame - b.frame;});
+    // remove old trajectory
+    trajectories.splice(trajectory_index2, 1);
+    original_boxes.splice(boxes_index2, 1);
+    // indices might have changed
+    trajectory_index1 = trajectories.findIndex(t => "id"+t.id === trajectory_id1);
+
+    // remove old points and lines from map
+    map.removeLayer(lines[trajectory_index1]);
+    map.removeLayer(lines[trajectory_index2]);
+    for (let p = 0; p < points[trajectory_index1].length; p++) {
+        map.removeLayer(points[trajectory_index1][p]);
+    }
+    for (let p = 0; p < points[trajectory_index2].length; p++) {
+        map.removeLayer(points[trajectory_index2][p]);
+    }
+    // remove only traj. 2 since traj. 1 will be refilled
+    lines.splice(trajectory_index2, 1);
+    points.splice(trajectory_index2, 1);
+    points[trajectory_index1] = []
+
+    const xhr = new XMLHttpRequest();
+    const theUrl = "/interpolate";
+    xhr.open("POST", theUrl);
+    xhr.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            const json_resp = JSON.parse(xhr.responseText);
+            trajectories[trajectory_index1] = json_resp;
+
+            uninterpolate_boxes();
+
+            lines[trajectory_index1] = L.polyline(trajectories[trajectory_index1].positions_rotations_and_boxes.map(position_rotation_and_box => position_rotation_and_box.position), {
+                color: ((trajectories[trajectory_index1].id === 0) ? 'rgb(247, 76, 67)' : 'rgb(59, 173, 227)'),
+                opacity: 0.3
+            }).addTo(map);
+
+            lines[trajectory_index1].trajectory_id = trajectories[trajectory_index1].id;
+            lines[trajectory_index1].line_index = trajectory_index1;
+            lines[trajectory_index1].addEventListener("mousedown", line_mousedown_function);
+            lines[trajectory_index1].addEventListener("mouseover", handle_mouseenter_line);
+            lines[trajectory_index1].addEventListener("mouseout", handle_mouseleave_line);
+
+            for (let p = 0; p < trajectories[trajectory_index1].positions_rotations_and_boxes.length; p++) {
+                points[trajectory_index1].push(L.circle(
+                    new L.LatLng(trajectories[trajectory_index1].positions_rotations_and_boxes[p].position[0],
+                        trajectories[trajectory_index1].positions_rotations_and_boxes[p].position[1]),
+                    {
+                        radius: 0.5,
+                        color: ((trajectories[trajectory_index1].id === 0) ? 'rgb(247, 76, 67)' : 'rgb(59, 173, 227)')
+                    }
+                ).addTo(map));
+                points[trajectory_index1][p].line_index = trajectory_index1;
+                points[trajectory_index1][p].point_index = p;
+                points[trajectory_index1][p].addEventListener("mousedown", point_mousedown_function);
+                points[trajectory_index1][p].addEventListener("mouseover", handle_mouseenter_point);
+                points[trajectory_index1][p].addEventListener("mouseout", handle_mouseleave_point);
+            }
+
+            set_element_colors();
+            set_circle_colors();
+            set_line_colors();
+            set_box_colors();
+            button_visibility();
+            redraw_object_map_object_outlines();
+            draw_boxes();
+        }
+    };
+    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    xhr.send(JSON.stringify(trajectories[trajectory_index1]));
+
+    document.getElementById("elementSelector").removeChild(document.getElementById(trajectory_id2));
+    document.getElementById("boxes").removeChild(document.getElementById(trajectory_id2 + "box"));
 
 }
 
@@ -666,9 +771,9 @@ function add_new_element_form_submit() {
     divElement.appendChild(elementButtonRegionDiv);
     document.getElementById("elementSelector").insertBefore(divElement, document.getElementById("elementSelector").children[document.getElementById("elementSelector").children.length - 1]);
 
-
     set_element_colors();
     button_visibility();
+    checkDraggablility();
 
     // hides form + resets values
     document.getElementById("elementType").value = 1;
@@ -796,4 +901,138 @@ function gauss_smooth_object(event) {
     smooth_trajectory(trajectory_index);
     redraw_object_map_object_outlines();
 
+}
+
+/**
+ * Drag and drop stuff
+ */
+function checkDraggablility(){
+    let activate = function(){
+        for(let i = 0; i < elements.length; i++) {
+
+            elements[i].removeEventListener("dragstart", dragElementDescriptorStart);
+            elements[i].removeEventListener("dragenter", dragElementDescriptorEnter);
+            elements[i].removeEventListener("dragleave", dragElementDescriptorLeave);
+            //elements[i].addEventListener("dragend", dragEndElementDescriptor);
+            elements[i].removeEventListener("dragover", dragoverElementDescriptor);
+            elements[i].removeEventListener("drop", dropElementDescriptor);
+
+            elements[i].draggable = true;
+            elements[i].addEventListener("dragstart", dragElementDescriptorStart);
+            elements[i].addEventListener("dragenter", dragElementDescriptorEnter);
+            elements[i].addEventListener("dragleave", dragElementDescriptorLeave);
+            //elements[i].addEventListener("dragend", dragEndElementDescriptor);
+            elements[i].addEventListener("dragover", dragoverElementDescriptor);
+            elements[i].addEventListener("drop", dropElementDescriptor);
+        }
+    };
+    let deactivate = function(){
+        for(let i = 0; i < elements.length; i++) {
+            elements[i].draggable = false;
+            elements[i].removeEventListener("dragstart", dragElementDescriptorStart);
+            elements[i].removeEventListener("dragenter", dragElementDescriptorEnter);
+            elements[i].removeEventListener("dragleave", dragElementDescriptorLeave);
+            //elements[i].removeEventListener("dragend", dragEndElementDescriptor);
+            elements[i].removeEventListener("dragover", dragoverElementDescriptor);
+            elements[i].removeEventListener("drop", dropElementDescriptor);
+        }
+    };
+
+    let elements = document.getElementsByClassName("some-element");
+    activate();
+    elements = document.getElementsByClassName("active-element");
+    activate();
+    elements = document.getElementsByClassName("empty-element");
+    deactivate();
+}
+
+function sortElementsByHidden(){
+    let selector = document.getElementById("elementSelector");
+    [].slice.call(selector.children).sort((a,b) => {
+        if(b.classList.contains("hidden")) return -1;
+        if(!b.classList.contains("hidden") && a.classList.contains("hidden")) return 1;
+        return 0;
+    }).forEach(function(val, index) {
+        selector.appendChild(val);
+    });
+    selector.appendChild(document.getElementById("addButtonWrapper"));
+}
+
+function dragElementDescriptorStart(ev) {
+    //const id = ev.target.closest("div.some-element").id;
+    ev.dataTransfer.setData("id", ev.target.id);
+    // Timeout needed: https://stackoverflow.com/questions/14203734/dragend-dragenter-and-dragleave-firing-off-immediately-when-i-drag
+    setTimeout(function(){
+    let elements = document.getElementsByClassName("some-element");
+    for (let i = 0; i < elements.length; i++){
+        if(ev.target.id != elements[i].id) {
+            elements[i].classList.remove("hidden");
+            elements[i].classList.add("hint");
+        }
+    }
+    ev.target.addEventListener("dragend", dragEndElementDescriptor);
+    }, 1);
+}
+
+function dragElementDescriptorEnter(ev) {
+    if (ev.target.id != ev.dataTransfer.getData("id")) {
+        ev.target.classList.add("active");
+        ev.target.classList.remove("hint");
+    }
+}
+
+function dragElementDescriptorLeave(ev) {
+    if (ev.target.id != ev.dataTransfer.getData("id")) {
+        ev.target.classList.remove("active");
+        ev.target.classList.add("hint");
+    }else{
+        ev.target.classList.remove("active");
+    }
+}
+
+function dragEndElementDescriptor(ev){
+    let fun = function () {
+        for (let i = 0; i < elements.length; i++) {
+            elements[i].classList.remove("hint");
+            elements[i].classList.remove("active");
+
+            const ti = trajectories.findIndex(t => "id" + t.id === elements[i].id);
+            if (ti < 0) {
+                continue;
+            }
+            if (trajectories[ti].positions_rotations_and_boxes.findIndex(prb => prb.frame === current_frame) === -1) {
+                elements[i].classList.add("hidden");
+            }
+
+        }
+    };
+
+    let elements = document.getElementsByClassName("some-element");
+    fun();
+    elements = document.getElementsByClassName("active-element");
+    fun();
+
+    ev.target.removeEventListener("dragend", dragEndElementDescriptor);
+    sortElementsByHidden();
+}
+
+function dragoverElementDescriptor(ev){
+    ev.preventDefault();
+}
+
+function dropElementDescriptor(ev) {
+    ev.preventDefault();
+    const id2 = ev.dataTransfer.getData("id");
+    //const id1 = ev.target.id;
+    const el = ev.target.closest("div.some-element");
+    if(el){
+        const id1 = el.id;
+        if(id1===id2) {
+            return
+        }
+        if (confirm("You are going to merge object with id " + id2.replace("id","") + " into object with id " + id1.replace("id","") + ". Are you sure that you want to do this?") == true) {
+            merge_objects(id1, id2);
+        }
+    }
+    dragEndElementDescriptor();
 }

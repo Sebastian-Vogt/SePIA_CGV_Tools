@@ -56,6 +56,7 @@ function interval_function(play_button, pause_button, time_text_element) {
         video.currentTime = current_frame / fps;
         sliderColorCorrector(colorTable, range, timeline_style_tag);
         hide_and_show_elements();
+        set_element_colors();
         set_circle_colors();
         correct_lines();
         button_visibility();
@@ -76,6 +77,7 @@ function on_slider(play_button, pause_button, time_text_element) {
     set_box_colors();
     video.currentTime = parseInt(current_frame) / fps;
     hide_and_show_elements();
+    set_element_colors();
     set_circle_colors();
     correct_lines();
     button_visibility();

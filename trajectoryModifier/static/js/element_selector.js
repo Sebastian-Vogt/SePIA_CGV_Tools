@@ -18,6 +18,7 @@ function hide_and_show_elements() {
             element_div.classList.remove("hidden");
         }
     }
+    sortElementsByHidden();
 }
 /**
  * Hides and shows element descriptors buttons

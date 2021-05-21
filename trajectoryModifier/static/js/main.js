@@ -249,6 +249,8 @@ document.addEventListener("DOMContentLoaded", function () {
                         button_visibility();
                         calculate_directions();
                         redraw_object_map_object_outlines();
+
+                        checkDraggablility();
                     } else {
                         return "something went wrong"
                     }
