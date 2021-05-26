@@ -147,22 +147,11 @@ function merge_objects(trajectory_id1, trajectory_id2) {
     // remove old trajectory
     trajectories.splice(trajectory_index2, 1);
     original_boxes.splice(boxes_index2, 1);
+
     // indices might have changed
     trajectory_index1 = trajectories.findIndex(t => "id"+t.id === trajectory_id1);
 
-    // remove old points and lines from map
-    map.removeLayer(lines[trajectory_index1]);
-    map.removeLayer(lines[trajectory_index2]);
-    for (let p = 0; p < points[trajectory_index1].length; p++) {
-        map.removeLayer(points[trajectory_index1][p]);
-    }
-    for (let p = 0; p < points[trajectory_index2].length; p++) {
-        map.removeLayer(points[trajectory_index2][p]);
-    }
-    // remove only traj. 2 since traj. 1 will be refilled
-    lines.splice(trajectory_index2, 1);
-    points.splice(trajectory_index2, 1);
-    points[trajectory_index1] = []
+    delete_all_lines_and_points();
 
     const xhr = new XMLHttpRequest();
     const theUrl = "/interpolate";
@@ -174,32 +163,7 @@ function merge_objects(trajectory_id1, trajectory_id2) {
 
             uninterpolate_boxes();
 
-            lines[trajectory_index1] = L.polyline(trajectories[trajectory_index1].positions_rotations_and_boxes.map(position_rotation_and_box => position_rotation_and_box.position), {
-                color: ((trajectories[trajectory_index1].id === 0) ? 'rgb(247, 76, 67)' : 'rgb(59, 173, 227)'),
-                opacity: 0.3
-            }).addTo(map);
-
-            lines[trajectory_index1].trajectory_id = trajectories[trajectory_index1].id;
-            lines[trajectory_index1].line_index = trajectory_index1;
-            lines[trajectory_index1].addEventListener("mousedown", line_mousedown_function);
-            lines[trajectory_index1].addEventListener("mouseover", handle_mouseenter_line);
-            lines[trajectory_index1].addEventListener("mouseout", handle_mouseleave_line);
-
-            for (let p = 0; p < trajectories[trajectory_index1].positions_rotations_and_boxes.length; p++) {
-                points[trajectory_index1].push(L.circle(
-                    new L.LatLng(trajectories[trajectory_index1].positions_rotations_and_boxes[p].position[0],
-                        trajectories[trajectory_index1].positions_rotations_and_boxes[p].position[1]),
-                    {
-                        radius: 0.5,
-                        color: ((trajectories[trajectory_index1].id === 0) ? 'rgb(247, 76, 67)' : 'rgb(59, 173, 227)')
-                    }
-                ).addTo(map));
-                points[trajectory_index1][p].line_index = trajectory_index1;
-                points[trajectory_index1][p].point_index = p;
-                points[trajectory_index1][p].addEventListener("mousedown", point_mousedown_function);
-                points[trajectory_index1][p].addEventListener("mouseover", handle_mouseenter_point);
-                points[trajectory_index1][p].addEventListener("mouseout", handle_mouseleave_point);
-            }
+            initialize_points_and_lines();
 
             set_element_colors();
             set_circle_colors();
@@ -1039,5 +1003,4 @@ function dropElementDescriptor(ev) {
             changes_button.classList.toggle("hidden");
         }
     }
-    dragEndElementDescriptor();
 }
