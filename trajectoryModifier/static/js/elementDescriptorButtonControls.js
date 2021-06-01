@@ -105,7 +105,11 @@ function remove_object_by_ID(trajectory_id) {
     }
 
     document.getElementById("elementSelector").removeChild(document.getElementById(trajectory_id));
-    document.getElementById("boxes").removeChild(document.getElementById(trajectory_id + "box"));
+    try{
+        document.getElementById("boxes").removeChild(document.getElementById(trajectory_id + "box"));
+    }catch (e) {
+
+    }
 
     const boxes_index = original_boxes.findIndex(e => e.id === trajectory_id);
     if (boxes_index >= 0){
@@ -847,6 +851,8 @@ function smooth_object(event) {
             update_line(trajectory_index);
             calculate_directions();
             redraw_object_map_object_outlines();
+            changes = true;
+            updateSaveButton();
         }
 
     };
@@ -864,6 +870,8 @@ function gauss_smooth_object(event) {
 
     smooth_trajectory(trajectory_index);
     redraw_object_map_object_outlines();
+    changes = true;
+    updateSaveButton();
 
 }
 
@@ -997,10 +1005,7 @@ function dropElementDescriptor(ev) {
         if (confirm("You are going to merge object with id " + id2.replace("id","") + " into object with id " + id1.replace("id","") + ". Are you sure that you want to do this?") == true) {
             merge_objects(id1, id2);
             changes = true;
-            const saved_button = document.getElementById("savedButton");
-            saved_button.classList.toggle("hidden");
-            const changes_button = document.getElementById("changesButton");
-            changes_button.classList.toggle("hidden");
+            updateSaveButton();
         }
     }
 }

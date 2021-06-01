@@ -6,7 +6,7 @@ function save_button_click(e) {
         const saving_button = document.getElementById("savingButton");
         saving_button.classList.toggle("hidden");
         const changes_button = document.getElementById("changesButton");
-        changes_button.classList.toggle("hidden");
+        changes_button.classList.add("hidden");
         const xhr = new XMLHttpRequest();   // new HttpRequest instance
         const theUrl = "/trajectories";
         xhr.open("POST", theUrl);
@@ -14,7 +14,7 @@ function save_button_click(e) {
             if (this.readyState == 4 && this.status == 200) {
                 changes = false;
                 const saved_button = document.getElementById("savedButton");
-                saved_button.classList.toggle("hidden");
+                saved_button.classList.remove("hidden");
                 saving_button.classList.toggle("hidden");
 
                 const xhr1 = new XMLHttpRequest();   // http request for trajectories
@@ -46,6 +46,22 @@ function save_button_click(e) {
         xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
         xhr.send(JSON.stringify(trajectories));
     }
+}
+
+function updateSaveButton(){
+    const saved_button = document.getElementById("savedButton");
+    const saving_button = document.getElementById("savingButton");
+    const changes_button = document.getElementById("changesButton");
+    if(changes){
+        changes_button.classList.remove("hidden");
+        saving_button.classList.add("hidden");
+        saved_button.classList.add("hidden");
+    }else{
+        changes_button.classList.add("hidden");
+        saving_button.classList.add("hidden");
+        saved_button.classList.remove("hidden");
+    }
+
 }
 
 

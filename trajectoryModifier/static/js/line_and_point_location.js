@@ -234,8 +234,7 @@ function handle_move(e) {
         // update save button
         if (!changes) {
             changes = true;
-            document.getElementById("changesButton").classList.toggle("hidden");
-            document.getElementById("savedButton").classList.toggle("hidden");
+            updateSaveButton();
         }
     });
 }
@@ -317,8 +316,7 @@ function handle_rotate(e) {
         // update save button
         if (!changes) {
             changes = true;
-            document.getElementById("changesButton").classList.toggle("hidden");
-            document.getElementById("savedButton").classList.toggle("hidden");
+            updateSaveButton();
         }
     });
 }
@@ -390,8 +388,7 @@ function handle_scale(e) {
         // update save button
         if (!changes) {
             changes = true;
-            document.getElementById("changesButton").classList.toggle("hidden");
-            document.getElementById("savedButton").classList.toggle("hidden");
+            updateSaveButton();
         }
     });
 }
@@ -436,8 +433,7 @@ function handle_collapse(e) {
         // update save button
         if (!changes) {
             changes = true;
-            document.getElementById("changesButton").classList.toggle("hidden");
-            document.getElementById("savedButton").classList.toggle("hidden");
+            updateSaveButton();
         }
     });
 
@@ -501,8 +497,7 @@ function handle_remove(e) {
         // update save button
         if (!changes) {
             changes = true;
-            document.getElementById("changesButton").classList.toggle("hidden");
-            document.getElementById("savedButton").classList.toggle("hidden");
+            updateSaveButton();
         }
     });
 }
