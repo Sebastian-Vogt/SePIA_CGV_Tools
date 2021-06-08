@@ -76,12 +76,15 @@ function set_box_colors() {
                     || (highlight.filter(el => el[0] == t).length > 0 && highlight.filter(el => el[0] == t).map(el => trajectories[el[0]].positions_rotations_and_boxes[el[1]].frame).includes(current_frame))) {
                     box.style.border = (trajectories[t].positions_rotations_and_boxes[pbr_index].is_interpolated) ? "3px dashed rgb(61, 227, 105)" : "3px solid rgb(61, 227, 105)";
                     box.style.backgroundColor = "rgba(61, 227, 105, 0.5)";
+                    box.style.color = "rgb(61, 227, 105)";
                 } else if (trajectories[t].id === 0) {
                     box.style.border = (trajectories[t].positions_rotations_and_boxes[pbr_index].is_interpolated) ? "3px dashed rgb(247, 76, 67)" : "3px solid rgb(247, 76, 67)";
                     box.style.backgroundColor = "rgba(247, 76, 67, 0.5)";
+                    box.style.color = "rgb(247, 76, 67)";
                 } else {
                     box.style.border = (trajectories[t].positions_rotations_and_boxes[pbr_index].is_interpolated) ? "3px dashed rgb(59, 173, 227)" : "3px solid rgb(59, 173, 227)";
-                    box.style.backgroundColor = "rgba(59, 173, 227,0.5)";
+                    box.style.backgroundColor = "rgba(59, 173, 227, 0.5)";
+                    box.style.color = "rgb(59, 173, 227)";
                 }
             }
         }

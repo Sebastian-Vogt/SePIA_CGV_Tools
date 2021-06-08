@@ -44,6 +44,8 @@ function draw_boxes() {
                     rect.style.border = (trajectories[t].positions_rotations_and_boxes[i].is_interpolated)? "3px dashed rgb(59, 173, 227)" : "3px solid rgb(59, 173, 227)";
                     rect.style.backgroundColor = "rgba(59, 173, 227,0.5)";
                     rect.style.backdropFilter = "contrast(1.5)";
+                    rect.style.color = "rgb(59, 173, 227)";
+                    rect.innerText = trajectories[t].positions_rotations_and_boxes[i].confidence.toFixed(2);
                     rect.addEventListener("mouseenter", handle_mouseenter_box);
                     rect.addEventListener("mouseleave", handle_mouseleave_element);
                     rect.addEventListener("click", handle_click_element);
