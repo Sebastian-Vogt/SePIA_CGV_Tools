@@ -48,23 +48,44 @@ class SortTracker:
         return label_frame, score_frame
 
     def convert_tracks_to_list(self):
-        detections = []
-        for framedets in self.tracks.values():
-            detections.extend(framedets)
-        ids = set([d[4] for d in detections])
-        tracks = []
-        for id in ids:
-            track = Tracklet()
-            track.id = id
-            tracks.append(track)
 
-        for frame, detections in self.tracks.items():
-            for det in detections:
-                for track in tracks:
-                    if track.id == det[4]:
-                        track.type = int(det[5])
-                        track.boxes[frame] = list(det[:4])
-                        track.last_detected_frame = max(frame, track.last_detected_frame)
+        ts = {}
+        for frame, dets in self.tracks.items():
+            for det in dets:
+                id = int(det[6])
+                if not id in ts:
+                    ts[id] = {}
+                ts[id][frame] = det[:-1]
+
+        ts = dict(filter(lambda elem: len(dict(filter(lambda el: el[1][4] > 0.0, elem[1].items()))) >= self.min_occurrences, ts.items()))
+
+        for id, t in ts.items():
+            for frame in reversed(sorted(t)):
+                if t[frame][4] == 0.0:
+                    t.pop(frame)
+                else:
+                    break
+
+        tracks = []
+        for id, t in ts.items():
+            track = Tracklet()
+            track.id = t
+            types = {}
+            for frame, det in t.items():
+                track.confidences[frame] = det[4]
+                track.boxes[frame] = list(det[:4])
+                types[frame] = int(det[5])
+
+            classes = np.zeros(max(list(types.values()))+1)
+            for frame, conf in track.confidences.items():
+                try:
+                    classes[types[frame]] += conf
+                except KeyError:
+                    pass
+
+            track.type = int(np.argmax(classes))
+            track.last_detected_frame = max(track.confidences.keys())
+            tracks.append(track)
 
         self.tracks = tracks
 
@@ -76,6 +97,7 @@ class Tracklet(object):
         # Initialize parametes for tracker (history)
         self.id = next(Tracklet.id_iter)  # uuid.uuid4()  # tracker's id
         self.boxes = {}
+        self.confidences = {}
         self.type = None
         self.last_detected_frame = 0
 
@@ -87,3 +109,9 @@ class Tracklet(object):
             return self.boxes[frame]
         except KeyError:
             return None
+
+    def get_confidence(self, frame):
+        try:
+            return self.confidences[frame]
+        except KeyError:
+            return 0.0

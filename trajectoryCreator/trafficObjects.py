@@ -95,6 +95,10 @@ class TrafficObject(object):
                 pbrDict["rotation"] = rotation
             if self.track:
                 pbrDict["box"] = self.track.get_box(key)
+                try:
+                    pbrDict["confidence"] = self.track.get_confidence(key)
+                except Exception:
+                    pbrDict["confidence"] = 0.0
             if len(self.positions.items()) == 1:
                 pbrDict["opponent_approach"] = "Other"
                 pbrDict["opponent_specification"] = "StandStill"

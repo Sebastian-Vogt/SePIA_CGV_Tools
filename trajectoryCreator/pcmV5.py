@@ -522,7 +522,12 @@ class PCMExporter:
                                              'TIME' double,
                                              SPECIFICATION int,
                                              MANEUVER int,
-                                             APPROACH int);""")
+                                             APPROACH int,
+                                             BOXXMIN int,
+                                             BOXYMIN int,
+                                             BOXXMAX int,
+                                             BOXYMAX int,
+                                             CONFIDENCE double);""")
             dbconn.commit()
 
             for trajectory in trajectories:
@@ -541,14 +546,39 @@ class PCMExporter:
                         approach = 99999 if objID == 0 else self.mapApproach(pbr["opponent_approach"])
                     except KeyError:
                         approach = 99999
+                    try:
+                        xmin = int(pbr["box"][0])
+                    except KeyError:
+                        xmin = 99999
+                    try:
+                        ymin = int(pbr["box"][1])
+                    except KeyError:
+                        ymin = 99999
+                    try:
+                        xmax = int(pbr["box"][2])
+                    except KeyError:
+                        xmax = 99999
+                    try:
+                        ymax = int(pbr["box"][3])
+                    except KeyError:
+                        ymax = 99999
+                    try:
+                        conf = pbr["confidence"]
+                    except KeyError:
+                        conf = 99999
 
-                    cursor.execute("""INSERT INTO specification (CASEID, PARTID, VARIATIONID, 'TIME', SPECIFICATION, MANEUVER, APPROACH)
+                    cursor.execute("""INSERT INTO specification (CASEID, PARTID, VARIATIONID, 'TIME', SPECIFICATION, MANEUVER, APPROACH, BOXXMIN, BOXYMIN, BOXXMAX, BOXYMAX, CONFIDENCE)
                                            VALUES('""" + str(self.caseid)
                                    + """', """ + str(objID)
                                    + """, 0, """ + str(time)
                                    + """, """ + str(specification)
                                    + """, """ + str(maneuverType)
-                                   + """, """ + str(approach) + """)""")
+                                   + """, """ + str(approach)
+                                   + """, """ + str(xmin)
+                                   + """, """ + str(ymin)
+                                   + """, """ + str(xmax)
+                                   + """, """ + str(ymax)
+                                   + """, """ + str(conf) + """)""")
                     dbconn.commit()
 
             cursor.close()
@@ -556,7 +586,7 @@ class PCMExporter:
         else:
             with open(self.constr.replace(".mdb", "_specification.csv"), "w", newline='') as csv_file:
                 csv_writer = csv.writer(csv_file, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-                csv_writer.writerow(["CASEID", "PARTID", "VARIATIONID", "TIME", "SPECIFICATION", "MANEUVER", "APPROACH"])
+                csv_writer.writerow(["CASEID", "PARTID", "VARIATIONID", "TIME", "SPECIFICATION", "MANEUVER", "APPROACH", "BOXXMIN", "BOXYMIN", "BOXXMAX", "BOXYMAX", "CONFIDENCE"])
 
                 for trajectory in trajectories:
                     objID = trajectory["id"]
@@ -574,6 +604,26 @@ class PCMExporter:
                             approach = 99999 if objID == 0 else self.mapApproach(pbr["opponent_approach"])
                         except KeyError:
                             approach = 99999
+                        try:
+                            xmin = int(pbr["box"][0])
+                        except KeyError:
+                            xmin = 99999
+                        try:
+                            ymin = int(pbr["box"][1])
+                        except KeyError:
+                            ymin = 99999
+                        try:
+                            xmax = int(pbr["box"][2])
+                        except KeyError:
+                            xmax = 99999
+                        try:
+                            ymax = int(pbr["box"][3])
+                        except KeyError:
+                            ymax = 99999
+                        try:
+                            conf = pbr["confidence"]
+                        except KeyError:
+                            conf = 99999
 
-                        csv_writer.writerow([str(self.caseid), str(objID), "0", str(time), str(specification), str(maneuverType), str(approach)])
+                        csv_writer.writerow([str(self.caseid), str(objID), "0", str(time), str(specification), str(maneuverType), str(approach), str(xmin), str(ymin), str(xmax), str(ymax), str(conf)])
 

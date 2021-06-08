@@ -85,7 +85,7 @@ class KalmanBoxTracker(object):
     """
     count = 0
 
-    def __init__(self, bbox, label):
+    def __init__(self, bbox, confidence, label):
         """
         Initialises a tracker using initial bounding box.
         """
@@ -112,8 +112,9 @@ class KalmanBoxTracker(object):
         self.hit_streak = 0
         self.age = 0
         self.labels = [label]
+        self.confidences = [confidence]
 
-    def update(self, bbox, label):
+    def update(self, bbox, confidence, label):
         """
         Updates the state vector with observed bbox.
         """
@@ -123,6 +124,7 @@ class KalmanBoxTracker(object):
         self.hit_streak += 1
         self.kf.update(convert_bbox_to_z(bbox))
         self.labels.append(label)
+        self.confidences.append(confidence)
 
     def predict(self):
         """
@@ -145,7 +147,13 @@ class KalmanBoxTracker(object):
         return convert_x_to_bbox(self.kf.x)
 
     def get_class(self):
-        return max(set(self.labels), key=self.labels.count)
+        return self.labels[-1]
+
+    def get_confidence(self):
+        if self.time_since_update > 0:
+            return 0.0
+        else:
+            return self.confidences[-1]
 
 
 def associate_detections_to_trackers(detections, trackers, iou_threshold=0.3):
@@ -208,7 +216,7 @@ class Sort(object):
         Params:
           dets - a numpy array of detections in the format [[x1,y1,x2,y2,score,class],[x1,y1,x2,y2,score,class],...]
         Requires: this method must be called once for each frame even with empty detections (use np.empty((0, 6)) for frames without detections).
-        Returns the a similar array, where the last column is the object class and the one before the object ID.
+        Returns the a similar array with one more component for the object ID.
         NOTE: The number of objects returned may differ from the number of detections provided.
         """
         self.frame_count += 1
@@ -228,22 +236,22 @@ class Sort(object):
 
         # update matched trackers with assigned detections
         for m in matched:
-            self.trackers[m[1]].update(dets[m[0], :5], dets[m[0], 5])
+            self.trackers[m[1]].update(dets[m[0], :4], dets[m[0], 4], dets[m[0], 5])
 
         # create and initialise new trackers for unmatched detections
         for i in unmatched_dets:
-            trk = KalmanBoxTracker(dets[i, :5], dets[i, 5])
+            trk = KalmanBoxTracker(dets[i, :4], dets[i, 4], dets[i, 5])
             self.trackers.append(trk)
+
         i = len(self.trackers)
         for trk in reversed(self.trackers):
             d = trk.get_state()[0]
-            if (trk.time_since_update < 1) and (trk.hit_streak >= self.min_hits or self.frame_count <= self.min_hits):
-                d = np.append(np.concatenate((d, [trk.id + 1])), trk.get_class()).reshape(1, -1)  # +1 as MOT benchmark requires positive
-                ret.append(d)
+            d = np.concatenate((d, [trk.get_confidence(), trk.get_class(), trk.id + 1])).reshape(1, -1)  # +1 as MOT benchmark requires positive
+            ret.append(d)
             i -= 1
             # remove dead tracklet
             if (trk.time_since_update > self.max_age):
                 self.trackers.pop(i)
         if (len(ret) > 0):
             return np.concatenate(ret)
-        return np.empty((0, 6))
+        return np.empty((0, 7))

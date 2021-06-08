@@ -36,6 +36,13 @@ class Object:
                 return box
         return None
 
+    def get_confidence(self, frame_nr):
+        for appearance in self.appearances:
+            box = appearance.get_box(frame_nr=frame_nr)
+            if box is not None:
+                return 1.0
+        return 0.0
+
 
 class Appearance:
     def __init__(self, start, stop, x_min_definitions, x_max_definitions, y_min_definitions, y_max_definitions):
