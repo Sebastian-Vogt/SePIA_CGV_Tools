@@ -122,7 +122,8 @@ class TrafficObject(object):
                 pbrDict = {"frame": key,
                            "box": dictionary["box"],
                            "opponent_approach": dictionary["approach"],
-                           "opponent_specification": dictionary["specification"]}
+                           "opponent_specification": dictionary["specification"],
+                           "confidence": self.track.get_confidence(key)}
                 json_dict["positions_rotations_and_boxes"].append(pbrDict)
 
         return json_dict

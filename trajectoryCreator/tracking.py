@@ -69,7 +69,6 @@ class SortTracker:
         tracks = []
         for id, t in ts.items():
             track = Tracklet()
-            track.id = t
             types = {}
             for frame, det in t.items():
                 track.confidences[frame] = det[4]
