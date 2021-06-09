@@ -246,7 +246,7 @@
         {% for trajectory in trajectories %}
             <div id="id{{ trajectory.id }}" class="element hidden" onclick="handle_click_element(event);"
                  onmouseenter="handle_mouseenter_descriptor(event);" onmouseleave="handle_mouseleave_element(event);">
-                {% if trajectory.id != 0 %}
+                {% if trajectory.id != 0 and (trajectory["positions_rotations_and_boxes"][0].confidence is defined) %}
                     <div class="confidenceRange">{{ '%0.2f'| format(trajectory["positions_rotations_and_boxes"] | map(attribute="confidence") | min) }}-{{ '%0.2f'| format(trajectory["positions_rotations_and_boxes"] | map(attribute="confidence") | max) }}</div>
                 {% endif %}
                 <div class="elementSVGContainer">
