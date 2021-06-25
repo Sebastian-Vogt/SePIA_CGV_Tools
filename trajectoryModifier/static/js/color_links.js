@@ -2,6 +2,9 @@
  * Goes over all points and sets the correct colors and opacities for them. (highlight/current/self/opponent)
  */
 function set_circle_colors() {
+
+    // TODO detected and specified differently
+
     try{
         for (let l = 0; l < points.length; l++) {
             for (let p = 0; p < points[l].length; p++) {
@@ -57,6 +60,9 @@ function set_line_colors() {
  * If box has been inter-/extrapolated, the border gets dashed.
  */
 function set_box_colors() {
+
+    // TODO detected and specified differently
+
     try{
         for (let t = 0; t < trajectories.length; t++) {
             let box = document.getElementById("id"+trajectories[t].id + "box");

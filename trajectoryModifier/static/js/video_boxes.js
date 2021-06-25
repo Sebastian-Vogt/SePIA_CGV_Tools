@@ -1,7 +1,7 @@
 /**
  * Resize function for the boxes div. (Needed, that the boxes match the video on window resize)
  */
-function resize_boxes() {
+function rescale_boxes() {
     const height = parseInt(video.clientHeight);
     const width = parseInt(video.clientWidth);
     let boxes_div = document.getElementById("boxes");
@@ -56,6 +56,9 @@ function draw_boxes() {
     }
 }
 
+// TODO add resize bbxes
+
+// TODO not needed/wanted anymore
 /**
  * Resets interpolated bounding_boxes to the original ones
  */
@@ -74,3 +77,4 @@ function uninterpolate_boxes(){
         }
     }
 }
+

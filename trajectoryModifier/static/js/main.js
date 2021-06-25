@@ -235,8 +235,8 @@ document.addEventListener("DOMContentLoaded", function () {
                         sliderColorCorrector(colorTable, range, timeline_style_tag);
 
                         // set resize callback for video + initialize size
-                        window.addEventListener("resize", resize_boxes);
-                        resize_boxes();
+                        window.addEventListener("resize", rescale_boxes);
+                        rescale_boxes();
 
                         // correct colors etc.
                         draw_boxes();

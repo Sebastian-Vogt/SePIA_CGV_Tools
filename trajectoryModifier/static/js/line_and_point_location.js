@@ -226,6 +226,9 @@ function handle_move(e) {
 
     });
     map.on('mouseup', function (e) {
+
+        // TODO set specified flag & interpolate & update display
+
         // remove eventlistener otherwise they would stack
         map.removeEventListener('mousemove');
         map.removeEventListener('mouseup');
@@ -307,6 +310,9 @@ function handle_rotate(e) {
 
     });
     map.on('mouseup', function (e) {
+
+        // TODO set specified flag & interpolate & update display
+
         // remove eventlistener otherwise they would stack
         map.removeEventListener('mousemove');
         map.removeEventListener('mouseup');
@@ -379,6 +385,8 @@ function handle_scale(e) {
     });
     map.on('mouseup', function (e) {
 
+        // TODO set specified flag & interpolate & update display
+
         // remove eventlistener otherwise they would stack
         map.removeEventListener('mousemove');
         map.removeEventListener('mouseup');
@@ -424,6 +432,8 @@ function handle_collapse(e) {
     button_visibility();
 
     map.on('mouseup', function (e) {
+
+        // TODO set specified flag & interpolate & update display
 
         // remove eventlistener otherwise they would stack
         map.removeEventListener('mouseup');

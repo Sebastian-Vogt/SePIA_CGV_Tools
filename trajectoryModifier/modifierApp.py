@@ -119,6 +119,7 @@ def handle_trajectories():
         trajanPath = next((data_dir + "\\" + x for x in os.listdir(data_dir) if x.endswith('.trajan')), None)
         with open(trajanPath) as json_file:
             json_trajectories_dict = json.load(json_file)
+            #TODO make sure detection and specified flag are set correctly 
         json_trajectories_list = list(map(lambda t: inter.interpolate_trajectory(t), json_trajectories_dict["trajectories"]))
         json_trajectories_list = check_rotations_for_trajectories(json_trajectories_list)
         return jsonify(json_trajectories_list)

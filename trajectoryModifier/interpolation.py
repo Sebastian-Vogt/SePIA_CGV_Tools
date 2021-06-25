@@ -37,6 +37,10 @@ def estimate_splines(trajectory, smoothing_factor=0):
 
 
 def interpolate_trajectory(trajectory):
+
+    # TODO only take detected and set frames & interpolate all others
+    # TODO remove interpolated flag
+
     frame_list = [prb['frame'] for prb in trajectory['positions_rotations_and_boxes'] if 'frame' in prb]
     if len(frame_list) <= 1:
         return trajectory
@@ -71,6 +75,9 @@ def interpolate_trajectory(trajectory):
 
 
 def extrapolate_points(trajectory, frames):
+
+    # TODO remove interpolated flag
+
     pos_tck, box_min_tck, box_max_tck = estimate_splines(trajectory)
 
     prbs = []
