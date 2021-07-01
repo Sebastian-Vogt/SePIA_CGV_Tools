@@ -57,7 +57,7 @@ function initialize_points_and_lines(){
         }
     ).map(position_rotation_and_box => L.circle(position_rotation_and_box.position, {
         radius: 0.5,
-        color: ((trajectory.id === 0) ? 'rgb(247, 76, 67)' : 'rgb(59, 173, 227)')
+        color: 'rgb(247, 76, 67)'
     }).addTo(map)));
 
     // initialize mouse handlers
@@ -76,6 +76,8 @@ function initialize_points_and_lines(){
             points[l][p].addEventListener("mouseout", handle_mouseleave_point);
         }
     }
+
+    set_circle_colors();
 }
 
 /**
@@ -223,9 +225,28 @@ function handle_move(e) {
         redraw_object_map_object_outlines();
         // and button visibility (i.e. set direction button)
         button_visibility();
-
     });
     map.on('mouseup', function (e) {
+
+        for (let selection_index = 0; selection_index < selection.length; selection_index++) {
+            trajectories[selection[selection_index][0]].positions_rotations_and_boxes[selection[selection_index][1]].specified = true;
+        }
+
+        to_be_interpolated_trajectories = Array.from(new Set(selection.map(x => x[0])))
+        for (let index = 0; index < to_be_interpolated_trajectories.length; index++) {
+            interpolateTrajectory(to_be_interpolated_trajectories[index], function(){
+                button_visibility();
+                redraw_object_map_object_outlines();
+                set_circle_colors();
+                draw_boxes();}
+            );
+        }
+
+        button_visibility();
+        redraw_object_map_object_outlines();
+        set_circle_colors();
+        draw_boxes();
+
         // remove eventlistener otherwise they would stack
         map.removeEventListener('mousemove');
         map.removeEventListener('mouseup');
@@ -307,6 +328,26 @@ function handle_rotate(e) {
 
     });
     map.on('mouseup', function (e) {
+
+        for (let selection_index = 0; selection_index < selection.length; selection_index++) {
+            trajectories[selection[selection_index][0]].positions_rotations_and_boxes[selection[selection_index][1]].specified = true;
+        }
+
+        to_be_interpolated_trajectories = Array.from(new Set(selection.map(x => x[0])))
+        for (let index = 0; index < to_be_interpolated_trajectories.length; index++) {
+            interpolateTrajectory(to_be_interpolated_trajectories[index], function(){
+                button_visibility();
+                redraw_object_map_object_outlines();
+                set_circle_colors();
+                draw_boxes();}
+            );
+        }
+
+        button_visibility();
+        redraw_object_map_object_outlines();
+        set_circle_colors();
+        draw_boxes();
+
         // remove eventlistener otherwise they would stack
         map.removeEventListener('mousemove');
         map.removeEventListener('mouseup');
@@ -379,6 +420,25 @@ function handle_scale(e) {
     });
     map.on('mouseup', function (e) {
 
+        for (let selection_index = 0; selection_index < selection.length; selection_index++) {
+            trajectories[selection[selection_index][0]].positions_rotations_and_boxes[selection[selection_index][1]].specified = true;
+        }
+
+        to_be_interpolated_trajectories = Array.from(new Set(selection.map(x => x[0])))
+        for (let index = 0; index < to_be_interpolated_trajectories.length; index++) {
+            interpolateTrajectory(to_be_interpolated_trajectories[index], function(){
+                button_visibility();
+                redraw_object_map_object_outlines();
+                set_circle_colors();
+                draw_boxes();}
+            );
+        }
+
+        button_visibility();
+        redraw_object_map_object_outlines();
+        set_circle_colors();
+        draw_boxes();
+
         // remove eventlistener otherwise they would stack
         map.removeEventListener('mousemove');
         map.removeEventListener('mouseup');
@@ -424,6 +484,20 @@ function handle_collapse(e) {
     button_visibility();
 
     map.on('mouseup', function (e) {
+
+        for (let selection_index = 0; selection_index < selection.length; selection_index++) {
+            trajectories[selection[selection_index][0]].positions_rotations_and_boxes[selection[selection_index][1]].specified = true;
+        }
+
+        to_be_interpolated_trajectories = Array.from(new Set(selection.map(x => x[0])))
+        for (let index = 0; index < to_be_interpolated_trajectories.length; index++) {
+            interpolateTrajectory(to_be_interpolated_trajectories[index], function(){
+                button_visibility();
+                redraw_object_map_object_outlines();
+                set_circle_colors();
+                draw_boxes();}
+            );
+        }
 
         // remove eventlistener otherwise they would stack
         map.removeEventListener('mouseup');
@@ -740,4 +814,70 @@ function gaussianKernel1d(size, sigma) {
     }
 
     return kernel;
+}
+
+function interpolateTrajectory(index, callback_f){
+
+    const xhr = new XMLHttpRequest();
+    const theUrl = "/interpolate";
+    xhr.open("POST", theUrl);
+    xhr.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+
+            const json_resp = JSON.parse(xhr.responseText);
+            trajectories[index] = json_resp;
+
+            // remove old line and replace it with the new one + setting callbacks
+
+            map.removeLayer(lines[index]);
+
+            lines[index] = L.polyline(trajectories[index].positions_rotations_and_boxes.map(position_rotation_and_box => position_rotation_and_box.position), {
+                color: ((trajectories[index].id === 0) ? 'rgb(247, 76, 67)' : 'rgb(59, 173, 227)'),
+                opacity: 0.3
+            }).addTo(map);
+
+            lines[index].trajectory_id = trajectories[index].id;
+            lines[index].line_index = index;
+            lines[index].addEventListener("mousedown", line_mousedown_function);
+            lines[index].addEventListener("mouseover", handle_mouseenter_line);
+            lines[index].addEventListener("mouseout", handle_mouseleave_line);
+
+            // remove old points of interpolated trajectory and replace it with the new one + setting callbacks
+
+            for (let p = 0; p < trajectories[index].positions_rotations_and_boxes.length; p++) {
+                if (p >= points[index].length) {
+                    points[index].push(L.circle(
+                        new L.LatLng(trajectories[index].positions_rotations_and_boxes[p].position[0],
+                            trajectories[index].positions_rotations_and_boxes[p].position[1]),
+                        {
+                            radius: 0.5,
+                            color: 'rgb(59, 173, 227)'
+                        }
+                    ).addTo(map));
+                } else {
+                    map.removeLayer(points[index][p]);
+                    points[index][p] = L.circle(
+                        new L.LatLng(trajectories[index].positions_rotations_and_boxes[p].position[0],
+                            trajectories[index].positions_rotations_and_boxes[p].position[1]),
+                        {
+                            radius: 0.5,
+                            color: 'rgb(59, 173, 227)'
+                        }
+                    ).addTo(map);
+                }
+
+                points[index][p].line_index = index;
+                points[index][p].point_index = p;
+                points[index][p].addEventListener("mousedown", point_mousedown_function);
+                points[index][p].addEventListener("mouseover", handle_mouseenter_point);
+                points[index][p].addEventListener("mouseout", handle_mouseleave_point);
+            }
+            callback_f();
+        }
+
+    };
+    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    xhr.send(JSON.stringify(trajectories[index]));
+
+
 }

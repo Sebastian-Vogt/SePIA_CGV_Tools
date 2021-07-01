@@ -11,10 +11,10 @@ def pos_at_time(tck, t):
     return np.array(interpolate.splev(root, tck)).flatten()
 
 
-def estimate_splines(trajectory, smoothing_factor=0):
-    pos_frame_list = [prb['frame'] for prb in trajectory['positions_rotations_and_boxes'] if 'position' in prb]
-    lat_list = [prb['position'][0] for prb in trajectory['positions_rotations_and_boxes'] if 'position' in prb]
-    long_list = [prb['position'][1] for prb in trajectory['positions_rotations_and_boxes'] if 'position' in prb]
+def estimate_splines(trajectory, smoothing_factor=0, onlySpecified=True):
+    pos_frame_list = [prb['frame'] for prb in trajectory['positions_rotations_and_boxes'] if ('position' in prb and not (onlySpecified and not (('detected' in prb and prb['detected']) or ('specified' in prb and prb['specified']))))]
+    lat_list = [prb['position'][0] for prb in trajectory['positions_rotations_and_boxes'] if ('position' in prb and not (onlySpecified and not (('detected' in prb and prb['detected']) or ('specified' in prb and prb['specified']))))]
+    long_list = [prb['position'][1] for prb in trajectory['positions_rotations_and_boxes'] if ('position' in prb and not (onlySpecified and not (('detected' in prb and prb['detected']) or ('specified' in prb and prb['specified']))))]
 
     if len(pos_frame_list) < 2:
         print("At least 2 frames must exist for interpolation.")
@@ -22,11 +22,11 @@ def estimate_splines(trajectory, smoothing_factor=0):
 
     tck_pos, _ = interpolate.splprep([lat_list, long_list, pos_frame_list], s=smoothing_factor, k=min(len(pos_frame_list)-1, 3))
 
-    box_frame_list = [prb['frame'] for prb in trajectory['positions_rotations_and_boxes'] if 'box' in prb]
-    box0_list = [prb['box'][0] for prb in trajectory['positions_rotations_and_boxes'] if 'box' in prb]
-    boy1_list = [prb['box'][1] for prb in trajectory['positions_rotations_and_boxes'] if 'box' in prb]
-    box2_list = [prb['box'][2] for prb in trajectory['positions_rotations_and_boxes'] if 'box' in prb]
-    box3_list = [prb['box'][3] for prb in trajectory['positions_rotations_and_boxes'] if 'box' in prb]
+    box_frame_list = [prb['frame'] for prb in trajectory['positions_rotations_and_boxes'] if ('box' in prb and not (onlySpecified and not (('detected' in prb and prb['detected']) or ('specified' in prb and prb['specified']))))]
+    box0_list = [prb['box'][0] for prb in trajectory['positions_rotations_and_boxes'] if ('box' in prb and not (onlySpecified and not (('detected' in prb and prb['detected']) or ('specified' in prb and prb['specified']))))]
+    boy1_list = [prb['box'][1] for prb in trajectory['positions_rotations_and_boxes'] if ('box' in prb and not (onlySpecified and not (('detected' in prb and prb['detected']) or ('specified' in prb and prb['specified']))))]
+    box2_list = [prb['box'][2] for prb in trajectory['positions_rotations_and_boxes'] if ('box' in prb and not (onlySpecified and not (('detected' in prb and prb['detected']) or ('specified' in prb and prb['specified']))))]
+    box3_list = [prb['box'][3] for prb in trajectory['positions_rotations_and_boxes'] if ('box' in prb and not (onlySpecified and not (('detected' in prb and prb['detected']) or ('specified' in prb and prb['specified']))))]
 
     if len(box_frame_list) < 2:
         return tck_pos, None, None
@@ -37,48 +37,49 @@ def estimate_splines(trajectory, smoothing_factor=0):
 
 
 def interpolate_trajectory(trajectory):
-    frame_list = [prb['frame'] for prb in trajectory['positions_rotations_and_boxes'] if 'frame' in prb]
-    if len(frame_list) <= 1:
+
+    frame_dict = {prb['frame']: prb for prb in trajectory['positions_rotations_and_boxes'] if 'frame' in prb}
+    if len(frame_dict.items()) <= 1:
         return trajectory
 
     pos_tck, box_min_tck, box_max_tck = estimate_splines(trajectory)
 
-    for prb in trajectory['positions_rotations_and_boxes']:
-        if not 'position' in prb and pos_tck:
-            pos = pos_at_time(pos_tck, prb["frame"])
-            prb["position"] = [float(pos[0]), float(pos[1])]
-            prb["is_interpolated"] = True
-        if not 'box' in prb and box_min_tck and box_max_tck:
-            box_min = pos_at_time(box_min_tck, prb["frame"])
-            box_max = pos_at_time(box_max_tck, prb["frame"])
-            prb["box"] = [float(box_min[0]), float(box_min[1]), float(box_max[0]), float(box_max[1])]
-
-    for frame in range(min(frame_list), max(frame_list)):
-        if not frame in frame_list:
+    for frame in range(min(list(frame_dict.keys())), max(list(frame_dict.keys()))+1):
+        try:
+            prb = frame_dict[frame]
+        except KeyError:
+            prb = None
+        if not prb or not 'detected' in prb or 'specified' in prb or ('detected' in prb and not prb['detected']) or ('specified' in prb and not prb['specified']) or not 'position' in prb:
             pos = pos_at_time(pos_tck, frame)
-            prb = {"frame": frame,
-                   "position": [float(pos[0]), float(pos[1])],
-                   "is_interpolated": True}
+            if not prb:
+                prb = {"frame": frame,
+                       "position": [float(pos[0]), float(pos[1])],
+                       "confidence": 0.0}
+            else:
+                prb["position"] = [float(pos[0]), float(pos[1])]
             if box_min_tck and box_max_tck:
                 box_min = pos_at_time(box_min_tck, prb["frame"])
                 box_max = pos_at_time(box_max_tck, prb["frame"])
                 prb["box"] = [float(box_min[0]), float(box_min[1]), float(box_max[0]), float(box_max[1])]
-            trajectory['positions_rotations_and_boxes'].append(prb)
 
-    trajectory['positions_rotations_and_boxes'].sort(key=lambda prb: prb['frame'])
+            frame_dict[frame] = prb
+    prbs = sorted(frame_dict.values(),key=lambda prb: prb['frame'])
+
+    trajectory['positions_rotations_and_boxes'] = prbs
 
     return trajectory
 
 
 def extrapolate_points(trajectory, frames):
-    pos_tck, box_min_tck, box_max_tck = estimate_splines(trajectory)
+
+    pos_tck, box_min_tck, box_max_tck = estimate_splines(trajectory, onlySpecified=False)
 
     prbs = []
     for frame in frames:
         pos = pos_at_time(pos_tck, frame)
         prb = {"frame": frame,
                "position": [float(pos[0]), float(pos[1])],
-               "is_interpolated": True}
+               "confidence": 0.0}
         if box_min_tck and box_max_tck:
             box_min = pos_at_time(box_min_tck, frame)
             box_max = pos_at_time(box_max_tck, frame)

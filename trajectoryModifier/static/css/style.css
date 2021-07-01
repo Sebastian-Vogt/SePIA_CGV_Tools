@@ -606,3 +606,60 @@ input[type=text]{
 .objectOutline{
     pointer-events: none !important;
 }
+
+.resizer{
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0);
+    position: absolute;
+}
+
+.active_resizer{
+    width: 200px;
+    height: 200px;
+}
+
+.top_left_resizer{
+    left: -5px;
+    top: -5px;
+    cursor: nwse-resize;
+}
+
+.top_left_resizer.active_resizer{
+    left: -100px;
+    top: -100px;
+}
+
+.top_right_resizer{
+    right: -5px;
+    top: -5px;
+    cursor: nesw-resize;
+}
+
+.top_right_resizer.active_resizer{
+    right: -100px;
+    top: -100px;
+}
+
+.bottom_left_resizer{
+    left: -5px;
+    bottom: -5px;
+    cursor: nesw-resize;
+}
+
+.bottom_left_resizer.active_resizer{
+    left: -100px;
+    bottom: -100px;
+}
+
+.bottom_right_resizer{
+    right: -5px;
+    bottom: -5px;
+    cursor: nwse-resize;
+}
+
+.bottom_right_resizer.active_resizer{
+    right: -100px;
+    bottom: -100px;
+}

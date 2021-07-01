@@ -17,6 +17,7 @@ import math
 from recalibration import calculate_optimal_parameter_set
 import pyodbc
 import numpy as np
+import time
 
 app = Flask(__name__)
 ui = FlaskUI(app)
@@ -43,7 +44,7 @@ def favicon():
 def recalibrate():
     d2m = Transformer.from_crs(CRS("EPSG:4326"), CRS("EPSG:32633"))
     trajectories = request.get_json()
-    trajectories = check_rotations_for_trajectories(trajectories)
+    trajectories = [fix_rotations(t) for t in trajectories]
     trajectories.sort(key=lambda x: x['id'])
     ego = trajectories[0]
     ego_pos = {pbr['frame']: pbr['position'] for pbr in ego["positions_rotations_and_boxes"]}
@@ -76,7 +77,7 @@ def recalibrate():
 def interpolate_trajectory():
     trajectory = request.get_json()
     interpolated_trajectory = inter.interpolate_trajectory(trajectory)
-    check_rotations_for_trajectory(interpolated_trajectory)
+    interpolated_trajectory = fix_rotations(interpolated_trajectory)
     return jsonify(interpolated_trajectory)
 
 
@@ -84,7 +85,7 @@ def interpolate_trajectory():
 def smooth_trajectory():
     trajectory = request.get_json()
     smoothed_trajectory = inter.smooth_trajectory(trajectory)
-    check_rotations_for_trajectory(smoothed_trajectory)
+    smoothed_trajectory = fix_rotations(smoothed_trajectory)
     return jsonify(smoothed_trajectory)
 
 
@@ -96,7 +97,7 @@ def extrapolate_trajectory():
     extrapolated_points = inter.extrapolate_points(trajectory, frames)
     trajectory["positions_rotations_and_boxes"].extend(extrapolated_points)
     trajectory["positions_rotations_and_boxes"].sort(key=lambda x: x["frame"])
-    check_rotations_for_trajectory(trajectory)
+    trajectory = fix_rotations(trajectory)
     return jsonify(trajectory)
 
 
@@ -107,9 +108,7 @@ def index():
     with open(trajanPath) as json_file:
         json_trajectories_dict = json.load(json_file)
         nr_frames = max([max([pbr["frame"] for pbr in traj["positions_rotations_and_boxes"]]) for traj in json_trajectories_dict["trajectories"] if len(traj["positions_rotations_and_boxes"])])
-        trajectories = [inter.interpolate_trajectory(t) for t in json_trajectories_dict["trajectories"]]
-        trajectories = check_rotations_for_trajectories(trajectories)
-        response = render_template('index.html', nr_frames=nr_frames, trajectories=trajectories)
+        response = render_template('index.html', nr_frames=nr_frames, trajectories=json_trajectories_dict["trajectories"])
     return response
 
 
@@ -119,12 +118,10 @@ def handle_trajectories():
         trajanPath = next((data_dir + "\\" + x for x in os.listdir(data_dir) if x.endswith('.trajan')), None)
         with open(trajanPath) as json_file:
             json_trajectories_dict = json.load(json_file)
-        json_trajectories_list = list(map(lambda t: inter.interpolate_trajectory(t), json_trajectories_dict["trajectories"]))
-        json_trajectories_list = check_rotations_for_trajectories(json_trajectories_list)
+        json_trajectories_list = clean_trajectories(json_trajectories_dict["trajectories"])
         return jsonify(json_trajectories_list)
     else:
         json_to_store = request.get_json()
-        json_to_store = check_rotations_for_trajectories(json_to_store)
         trajanPath = next((data_dir + "\\" + x for x in os.listdir(data_dir) if x.endswith('.trajan')), None)
         with open(trajanPath) as json_file:
             json_trajectories_dict = json.load(json_file)
@@ -141,21 +138,21 @@ def handle_trajectories():
             json_trajectories_dict["trajectories"] = json_to_store
             json.dump(json_trajectories_dict, json_file, indent=4)
 
-            exporter = pcmV5.PCMExporter(data_dir, json_trajectories_dict["caseID"])
+        exporter = pcmV5.PCMExporter(data_dir, json_trajectories_dict["caseID"])
 
-            egoStartPos = next((next((pbr["position"] for pbr in trajectory["positions_rotations_and_boxes"] if pbr["frame"] == 0), None) for trajectory in json_to_store if trajectory["id"] == 0), None)
-            if egoStartPos:
-                try:
-                    elevation = geoHandler.get_elevation(egoStartPos[0], egoStartPos[1])
-                except UserWarning:
-                    elevation = 0
-                egoStartPos.append(elevation)
-            else:
-                egoStartPos = [0, 0, 0]
-            exporter.writeGlobalTable(json_trajectories_dict["startTime"], egoStartPos, len(json_trajectories_dict["trajectories"]))
-            exporter.writeParticipantTable(json_to_store)
-            exporter.writeDynamicsTable(json_to_store, geoHandler)
-            exporter.writeSpecificationTable(json_to_store)
+        egoStartPos = next((next((pbr["position"] for pbr in trajectory["positions_rotations_and_boxes"] if pbr["frame"] == 0), None) for trajectory in json_to_store if trajectory["id"] == 0), None)
+        if egoStartPos:
+            try:
+                elevation = geoHandler.get_elevation(egoStartPos[0], egoStartPos[1])
+            except UserWarning:
+                elevation = 0
+            egoStartPos.append(elevation)
+        else:
+            egoStartPos = [0, 0, 0]
+        exporter.writeGlobalTable(json_trajectories_dict["startTime"], egoStartPos, len(json_trajectories_dict["trajectories"]))
+        exporter.writeParticipantTable(json_to_store)
+        exporter.writeDynamicsTable(json_to_store, geoHandler)
+        exporter.writeSpecificationTable(json_to_store)
 
         return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
 
@@ -170,27 +167,28 @@ def get_video_information():
         return jsonify(my_dict)
 
 
-def check_rotations_for_trajectories(trajectories):
-    pass
+def clean_trajectories(trajectories):
+
     for t in trajectories:
-        check_rotations_for_trajectory(t)
+        check_flags(t)
+    trajectories = [inter.interpolate_trajectory(t) for t in trajectories]
+    trajectories = [fix_rotations(t) for t in trajectories]
+
     return trajectories
 
 
-def check_rotations_for_trajectory(t):
-    counter = 0
-    for pbr in t["positions_rotations_and_boxes"]:
-        try:
-            rotation = pbr["rotation"]
-        except KeyError:
-            counter += 1
-    if counter > 0:
-        if counter == len(pbr):
-            for pbr in t["positions_rotations_and_boxes"]:
-                pbr["rotation"] = 0.0
+def check_flags(trajectory):
+    for pbr in trajectory["positions_rotations_and_boxes"]:
+        if "is_interpolated" in pbr:  #remove deprecated flag
+            del pbr['is_interpolated']
+        if "confidence" in pbr:
+            pbr["detected"] = pbr["confidence"] > 0
         else:
-            fix_rotations(t)
-    pass
+            pbr["detected"] = False
+            pbr["confidence"] = 0.0
+        if trajectory["id"] == 0 or trajectory["id"] == "self":
+            pbr["specified"] = True
+            pbr["confidence"] = 1.0
 
 
 def fix_rotations(t):
@@ -205,6 +203,7 @@ def fix_rotations(t):
         positions = {frame: list(d2m.transform(position[0], position[1])) for frame, position in positions.items()}
 
         p = np.array(list(positions.values()))
+
         p = p.reshape((len(p), -1))
         while p.shape[1] > 2:
             p = np.delete(p, 2, axis=1)
@@ -232,6 +231,8 @@ def fix_rotations(t):
 
     for i, rad in enumerate(rads):
         t["positions_rotations_and_boxes"][i]["rotation"] = rad / math.pi * 180 * -np.sign(grads[i][0])
+
+    return t
 
 
 def main():
