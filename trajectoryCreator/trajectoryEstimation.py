@@ -208,7 +208,7 @@ class TrajectoryEstimator:
                     self.yolo = det.YoloDetector(self.settings["yoloPath"], img_size=640, confidence_threshold=self.detectionThreshold, iou_threshold=0.5)
                 except:
                     self.yolo = None
-                self.tracker = trk.SortTracker(self.detector, self.yolo, self.settings["maxAge"], self.settings["minOccurrences"])
+                self.tracker = trk.SortTracker(self.detector, self.yolo, self.settings["maxAge"], self.settings["minOccurrences"], self.similarityThreshold)
                 end = time.process_time()
                 times["create detector & tracker"] = end - start
                 self.sharingQueue.put((self.id, "running", "Detector and tracker initialized.", 19.2/self.totalTimeEstimate * 100))

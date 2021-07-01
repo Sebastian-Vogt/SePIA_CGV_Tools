@@ -10,7 +10,7 @@ from sort import Sort
 
 
 class SortTracker:
-    def __init__(self, detector, yolo_detector, max_age, min_occurrences):
+    def __init__(self, detector, yolo_detector, max_age, min_occurrences, similarityThreshold):
         self.detector = detector
         self.yoloDetector = yolo_detector
         self.max_age = max_age
@@ -18,6 +18,7 @@ class SortTracker:
         self.tracker = Sort(max_age, min_occurrences)
         self.frames = {}
         self.tracks = {}
+        self.similarityThreshold = similarityThreshold
 
     def track_frame(self, image, frame_id):
         image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
@@ -33,7 +34,7 @@ class SortTracker:
         finalDets = []
         for yoloDet in yoloDets:
             for det in dets:
-                if utils.box_iou(yoloDet[:4], det[:4]) > 0.4:
+                if utils.box_iou(yoloDet[:4], det[:4]) > self.similarityThreshold:
                     dets.remove(det)
                     break
             finalDets.append(yoloDet)
