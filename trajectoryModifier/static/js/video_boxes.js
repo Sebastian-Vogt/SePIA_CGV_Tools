@@ -49,6 +49,40 @@ function draw_boxes() {
                     rect.addEventListener("mouseenter", handle_mouseenter_box);
                     rect.addEventListener("mouseleave", handle_mouseleave_element);
                     rect.addEventListener("click", handle_click_element);
+
+                    const tl_handle = document.createElement("div");
+                    tl_handle.id = "id" + trajectories[t].id + "box_tl_handle";
+                    tl_handle.classList.add("resizer");
+                    tl_handle.classList.add("top_left_resizer");
+                    tl_handle.addEventListener('mousedown', function(e){
+                        handle_resizer_click(e, rect, t, i);
+                    });
+                    const tr_handle = document.createElement("div");
+                    tr_handle.id = "id" + trajectories[t].id + "box_tr_handle";
+                    tr_handle.classList.add("resizer");
+                    tr_handle.classList.add("top_right_resizer");
+                    tr_handle.addEventListener('mousedown', function(e){
+                        handle_resizer_click(e, rect, t, i);
+                    });
+                    const bl_handle = document.createElement("div");
+                    bl_handle.id = "id" + trajectories[t].id + "box_bl_handle";
+                    bl_handle.classList.add("resizer");
+                    bl_handle.classList.add("bottom_left_resizer");
+                    bl_handle.addEventListener('mousedown', function(e){
+                        handle_resizer_click(e, rect, t, i);
+                    });
+                    const br_handle = document.createElement("div");
+                    br_handle.id = "id" + trajectories[t].id + "box_br_handle";
+                    br_handle.classList.add("resizer");
+                    br_handle.classList.add("bottom_right_resizer");
+                    br_handle.addEventListener('mousedown', function(e){
+                        handle_resizer_click(e, rect, t, i);
+                    });
+
+                    rect.appendChild(tl_handle);
+                    rect.appendChild(tr_handle);
+                    rect.appendChild(bl_handle);
+                    rect.appendChild(br_handle);
                     boxes_div.appendChild(rect);
                 }
             }
@@ -57,24 +91,139 @@ function draw_boxes() {
 }
 
 // TODO add resize bbxes
+function handle_resizer_click(e, rect, t, i){
 
-// TODO not needed/wanted anymore
-/**
- * Resets interpolated bounding_boxes to the original ones
- */
-function uninterpolate_boxes(){
-    for (let t = 0; t < trajectories.length; t++) {
-        const index = original_boxes.findIndex((element) => element.id == trajectories[t].id);
-        if (index >= 0){
-            for (let i = 0; i < trajectories[t].positions_rotations_and_boxes.length; i++) {
-                if (trajectories[t].positions_rotations_and_boxes[i].is_interpolated){
-                    const index2 = original_boxes[index].boxes.findIndex((element) => element.frame == trajectories[t].positions_rotations_and_boxes[i].frame);
-                    if (index2 >= 0){
-                        trajectories[t].positions_rotations_and_boxes[i].box = original_boxes[index].boxes[index2].box;
-                    }
-                }
+    e.target.classList.add("active_resizer");
+
+    let original_x = parseFloat(rect.style.left.replace('px', ''));
+    let original_y = parseFloat(rect.style.top.replace('px', ''));
+    let original_width = parseFloat(rect.style.width.replace('px', ''));
+    let original_height = parseFloat(rect.style.height.replace('px', ''));
+    let original_mouse_x = e.pageX;
+    let original_mouse_y = e.pageY;
+
+    function move(eve) {
+        let x0 = original_x;
+        let y0 = original_y;
+        let x1 = original_x + original_width;
+        let y1 = original_y + original_height;
+        let width = 0;
+        let height = 0;
+        if(e.target.classList.contains('top_left_resizer')){
+            width = original_width - (eve.pageX - original_mouse_x);
+            height = original_height - (eve.pageY - original_mouse_y);
+            if(width < 0){
+                width = -width;
+                x0 = x1;
+                x1 = x0 + width;
+            }else{
+                x0 = x0 + (eve.pageX - original_mouse_x);
             }
+            if(height < 0){
+                height = -height;
+                y0 = y1;
+                y1 = y0 + height;
+            }else{
+                y0 = y0 + (eve.pageY - original_mouse_y);
+            }
+        }else if(e.target.classList.contains('top_right_resizer')){
+            width = original_width + (eve.pageX - original_mouse_x);
+            height = original_height - (eve.pageY - original_mouse_y);
+            if (width < 0){
+                width = -width;
+                x1 = x0;
+                x0 = x1 - width;
+            }else{
+                x1 = x1 + (eve.pageX - original_mouse_x);
+            }
+            if (height < 0){
+                height = -height;
+                y0 = y1;
+                y1 = y0 + height;
+            }else{
+                y0 = y0 + (eve.pageY - original_mouse_y);
+            }
+        }else if(e.target.classList.contains('bottom_left_resizer')){
+            height = original_height + (eve.pageY - original_mouse_y);
+            width = original_width - (eve.pageX - original_mouse_x);
+            if (width < 0){
+                width = -width;
+                x0 = x1;
+                x1 = x0 + width;
+            }else{
+                x0 = x0 + (eve.pageX - original_mouse_x);
+            }
+            if (height < 0){
+                height = -height;
+                y1 = y0;
+                y0 = y0 - height;
+            }else{
+                y1 = y1 + (eve.pageY - original_mouse_y);
+            }
+        }else if(e.target.classList.contains('bottom_right_resizer')){
+            width = original_width + (eve.pageX - original_mouse_x);
+            height = original_height + (eve.pageY - original_mouse_y);
+            if (width < 0){
+                width = -width;
+                x1 = x0;
+                x0 = x1 - width;
+            }else{
+                x1 = x1 + (eve.pageX - original_mouse_x);
+            }
+            if (height < 0){
+                height = -height;
+                y1 = y0;
+                y0 = y0 - height;
+            }else{
+                y1 = y1 + (eve.pageY - original_mouse_y);
+            }
+        }else
+            return;
+
+        const video_div_height = parseInt(video.clientHeight);
+        const video_div_width = parseInt(video.clientWidth);
+
+        // clamping
+        if (x0 < 0){
+            x0 = 0;
+            width = x1-x0;
         }
-    }
+        if (y0 < 0){
+            y0 = 0;
+            height = y1-y0;
+        }
+        if (x1 > video_div_width){
+            x1 = video_div_width;
+            width = x1-x0;
+        }
+        if (y1 > video_div_height){
+            y1 = video_div_height;
+            height = y1-y0;
+        }
+
+        rect.style.left = x0+'px';
+        rect.style.top = y0+'px';
+        rect.style.width = width+'px';
+        rect.style.height = height+'px';
+
+        trajectories[t].positions_rotations_and_boxes[i].box = [
+            x0/video_div_width*video_width,
+            y0/video_div_height*video_height,
+            x1/video_div_width*video_width,
+            y1/video_div_height*video_height
+        ];
+
+    };
+    function up(eve) {
+        e.target.removeEventListener('mousemove', move);
+        e.target.removeEventListener('mouseup', up);
+        e.target.removeEventListener('mouseleave', up);
+        trajectories[t].positions_rotations_and_boxes[i].specified = true;
+        e.target.classList.remove("active_resizer");
+    };
+
+    e.target.addEventListener('mousemove', move);
+    e.target.addEventListener('mouseup', up);
+    e.target.addEventListener('mouseleave', up);
 }
 

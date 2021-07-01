@@ -23,8 +23,6 @@ function save_button_click(e) {
                     if (this.readyState == 4 && this.status == 200) {
                         trajectories = JSON.parse(xhr1.responseText);
 
-                        uninterpolate_boxes();
-
                         delete_all_lines_and_points();
                         initialize_points_and_lines();
                         draw_boxes();

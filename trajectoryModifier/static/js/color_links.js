@@ -1,36 +1,109 @@
+
 /**
  * Goes over all points and sets the correct colors and opacities for them. (highlight/current/self/opponent)
  */
 function set_circle_colors() {
 
-    // TODO detected and specified differently
-
     try{
         for (let l = 0; l < points.length; l++) {
             for (let p = 0; p < points[l].length; p++) {
+                let point_color = "rgb(255,255,255)";
+                let point_opacity = 1.0;
                 if (selection.filter(el => el[0] == l && el[1] == p).length > 0 && highlight.length == 0 || highlight.filter(el => el[0] == l && el[1] == p).length > 0) {
-                    if (current_frame >= trajectories[l].positions_rotations_and_boxes[p].frame) {
-                        points[l][p].setStyle({color: 'rgb(61, 227, 105)', opacity: 1.0});
-                    } else {
-                        points[l][p].setStyle({color: 'rgb(61, 227, 105)', opacity: 0.3});
+                    point_opacity = 1.0;
+                    try {
+                        if (trajectories[l].positions_rotations_and_boxes[p].detected || trajectories[l].positions_rotations_and_boxes[p].specified){
+                            point_color = 'rgb(61, 227, 105)';
+                        }
+                        else {
+                            point_color = 'rgb(41, 153, 71)';
+                        }
+                    }
+                    catch (e){
+                        point_color = 'rgb(41, 153, 71)';
+                    }
+                    if (current_frame < trajectories[l].positions_rotations_and_boxes[p].frame) {
+                        point_opacity = 0.2;
                     }
                 } else if (trajectories[l].id === 0) {
+
+                    point_opacity = 1.0;
                     if (current_frame == trajectories[l].positions_rotations_and_boxes[p].frame) {
-                        points[l][p].setStyle({color: '#fffb14', opacity: 1.0});
+                        try {
+                            if (trajectories[l].positions_rotations_and_boxes[p].detected || trajectories[l].positions_rotations_and_boxes[p].specified) {
+                                point_color = 'rgb(255, 251, 20)';
+                            } else {
+                                point_color = 'rgb(204, 201, 16)';
+                            }
+                        }
+                        catch (e){
+                            point_color = 'rgb(204, 201, 16)';
+                        }
                     } else if (current_frame > trajectories[l].positions_rotations_and_boxes[p].frame) {
-                        points[l][p].setStyle({color: 'rgb(247, 76, 67)', opacity: 1.0});
+                        point_opacity = 1.0;
+                        try {
+                            if (trajectories[l].positions_rotations_and_boxes[p].detected || trajectories[l].positions_rotations_and_boxes[p].specified) {
+                                point_color = 'rgb(247, 76, 67)';
+                            } else {
+                                point_color = 'rgb(173, 53, 47)';
+                            }
+                        }
+                        catch (e){
+                            point_color = 'rgb(173, 53, 47)';
+                        }
                     } else {
-                        points[l][p].setStyle({color: 'rgb(247, 76, 67)', opacity: 0.3});
+                        point_opacity = 0.2;
+                        try {
+                            if (trajectories[l].positions_rotations_and_boxes[p].detected || trajectories[l].positions_rotations_and_boxes[p].specified) {
+                                point_color = 'rgb(247, 76, 67)';
+                            } else {
+                                point_color = 'rgb(173, 53, 47)';
+                            }
+                        }
+                        catch (e){
+                            point_color = 'rgb(173, 53, 47)';
+                        }
                     }
                 } else {
                     if (current_frame == trajectories[l].positions_rotations_and_boxes[p].frame) {
-                        points[l][p].setStyle({color: '#fffb14', opacity: 1.0});
+                        point_opacity = 1.0;
+                        try {
+                            if (trajectories[l].positions_rotations_and_boxes[p].detected || trajectories[l].positions_rotations_and_boxes[p].specified) {
+                                point_color = 'rgb(255, 251, 20)';
+                            } else {
+                                point_color = 'rgb(204, 201, 16)';
+                            }
+                        }
+                        catch (e){
+                            point_color = 'rgb(204, 201, 16)';
+                        }
                     } else if (current_frame > trajectories[l].positions_rotations_and_boxes[p].frame) {
-                        points[l][p].setStyle({color: 'rgb(59, 173, 227)', opacity: 1.0});
+                        point_opacity = 1.0;
+                        try {
+                            if (trajectories[l].positions_rotations_and_boxes[p].detected || trajectories[l].positions_rotations_and_boxes[p].specified) {
+                                point_color = 'rgb(59, 173, 227)';
+                            } else {
+                                point_color = 'rgb(27, 78, 102)';
+                            }
+                        }
+                        catch (e){
+                            point_color = 'rgb(27, 78, 102)';
+                        }
                     } else {
-                        points[l][p].setStyle({color: 'rgb(59, 173, 227)', opacity: 0.3});
+                        point_opacity = 0.2;
+                        try {
+                            if (trajectories[l].positions_rotations_and_boxes[p].detected || trajectories[l].positions_rotations_and_boxes[p].specified) {
+                                point_color = 'rgb(59, 173, 227)';
+                            } else {
+                                point_color = 'rgb(27, 78, 102)';
+                            }
+                        }
+                        catch (e){
+                            point_color = 'rgb(27, 78, 102)';
+                        }
                     }
                 }
+                points[l][p].setStyle({color: point_color, opacity: point_opacity});
             }
         }
     } catch (error) {
@@ -61,8 +134,6 @@ function set_line_colors() {
  */
 function set_box_colors() {
 
-    // TODO detected and specified differently
-
     try{
         for (let t = 0; t < trajectories.length; t++) {
             let box = document.getElementById("id"+trajectories[t].id + "box");
@@ -76,22 +147,30 @@ function set_box_colors() {
                         break;
                     }
                 }
+                let box_color;
+                let line_type = (trajectories[t].positions_rotations_and_boxes[pbr_index].detected || trajectories[t].positions_rotations_and_boxes[pbr_index].specified) ? '3px solid': '2px dashed';
 
                 // main stuff
                 if ((selection.filter(el => el[0] == t).length > 0 && highlight.length == 0 && selection.filter(el => el[0] == t).map(el => trajectories[el[0]].positions_rotations_and_boxes[el[1]].frame).includes(current_frame))
                     || (highlight.filter(el => el[0] == t).length > 0 && highlight.filter(el => el[0] == t).map(el => trajectories[el[0]].positions_rotations_and_boxes[el[1]].frame).includes(current_frame))) {
-                    box.style.border = (trajectories[t].positions_rotations_and_boxes[pbr_index].is_interpolated) ? "3px dashed rgb(61, 227, 105)" : "3px solid rgb(61, 227, 105)";
-                    box.style.backgroundColor = "rgba(61, 227, 105, 0.5)";
-                    box.style.color = "rgb(61, 227, 105)";
+
+                    box_color = (trajectories[t].positions_rotations_and_boxes[pbr_index].detected || trajectories[t].positions_rotations_and_boxes[pbr_index].specified) ? 'rgb(61, 227, 105)' : 'rgb(41, 153, 71)';
+                    box.style.backgroundColor = (trajectories[t].positions_rotations_and_boxes[pbr_index].detected || trajectories[t].positions_rotations_and_boxes[pbr_index].specified) ? 'rgba(61, 227, 105, 0.3)' : 'rgba(41, 153, 71, 0.3)';
+
                 } else if (trajectories[t].id === 0) {
-                    box.style.border = (trajectories[t].positions_rotations_and_boxes[pbr_index].is_interpolated) ? "3px dashed rgb(247, 76, 67)" : "3px solid rgb(247, 76, 67)";
-                    box.style.backgroundColor = "rgba(247, 76, 67, 0.5)";
-                    box.style.color = "rgb(247, 76, 67)";
+
+                    box_color = (trajectories[t].positions_rotations_and_boxes[pbr_index].detected || trajectories[t].positions_rotations_and_boxes[pbr_index].specified) ? 'rgb(247, 76, 67)' : 'rgb(173, 53, 47)';
+                    box.style.backgroundColor = (trajectories[t].positions_rotations_and_boxes[pbr_index].detected || trajectories[t].positions_rotations_and_boxes[pbr_index].specified) ? 'rgba(247, 76, 67, 0.3)' : 'rgba(173, 53, 47, 0.3)';
+
                 } else {
-                    box.style.border = (trajectories[t].positions_rotations_and_boxes[pbr_index].is_interpolated) ? "3px dashed rgb(59, 173, 227)" : "3px solid rgb(59, 173, 227)";
-                    box.style.backgroundColor = "rgba(59, 173, 227, 0.5)";
-                    box.style.color = "rgb(59, 173, 227)";
+
+                    box_color = (trajectories[t].positions_rotations_and_boxes[pbr_index].detected || trajectories[t].positions_rotations_and_boxes[pbr_index].specified) ? 'rgb(59, 173, 227)' : 'rgb(40, 117, 153)';
+                    box.style.backgroundColor = (trajectories[t].positions_rotations_and_boxes[pbr_index].detected || trajectories[t].positions_rotations_and_boxes[pbr_index].specified) ? 'rgba(59, 173, 227, 0.3)' : 'rgba(40, 117, 153, 0.3)';
+
                 }
+
+                box.style.border = line_type + " " + box_color;
+                box.style.color = box_color;
             }
         }
     } catch (error) {

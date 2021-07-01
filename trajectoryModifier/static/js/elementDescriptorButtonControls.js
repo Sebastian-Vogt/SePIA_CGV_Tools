@@ -5,70 +5,13 @@ function interpolate_points(event) {
     const trajectory_id = event.target.closest(".elementButtonRegion").getAttribute("data-id");
     let trajectory_index = trajectories.findIndex(t => "id"+t.id === trajectory_id);
 
-    const xhr = new XMLHttpRequest();
-    const theUrl = "/interpolate";
-    xhr.open("POST", theUrl);
-    xhr.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
+    interpolateTrajectory(trajectory_index, function(){
+        button_visibility();
+        redraw_object_map_object_outlines();
+        set_circle_colors();
+        draw_boxes();}
+    );
 
-            const json_resp = JSON.parse(xhr.responseText);
-            trajectories[trajectory_index] = json_resp;
-
-            uninterpolate_boxes();
-
-            // remove old line and replace it with the new one + setting callbacks
-
-            map.removeLayer(lines[trajectory_index]);
-
-            lines[trajectory_index] = L.polyline(trajectories[trajectory_index].positions_rotations_and_boxes.map(position_rotation_and_box => position_rotation_and_box.position), {
-                color: ((trajectories[trajectory_index].id === 0) ? 'rgb(247, 76, 67)' : 'rgb(59, 173, 227)'),
-                opacity: 0.3
-            }).addTo(map);
-
-            lines[trajectory_index].trajectory_id = trajectories[trajectory_index].id;
-            lines[trajectory_index].line_index = trajectory_index;
-            lines[trajectory_index].addEventListener("mousedown", line_mousedown_function);
-            lines[trajectory_index].addEventListener("mouseover", handle_mouseenter_line);
-            lines[trajectory_index].addEventListener("mouseout", handle_mouseleave_line);
-
-            // remove old points of interpolated trajectory and replace it with the new one + setting callbacks
-
-            for (let p = 0; p < trajectories[trajectory_index].positions_rotations_and_boxes.length; p++) {
-                if (p >= points[trajectory_index].length) {
-                    points[trajectory_index].push(L.circle(
-                        new L.LatLng(trajectories[trajectory_index].positions_rotations_and_boxes[p].position[0],
-                            trajectories[trajectory_index].positions_rotations_and_boxes[p].position[1]),
-                        {
-                            radius: 0.5,
-                            color: ((trajectories[trajectory_index].id === 0) ? 'rgb(247, 76, 67)' : 'rgb(59, 173, 227)')
-                        }
-                    ).addTo(map));
-                } else {
-                    map.removeLayer(points[trajectory_index][p]);
-                    points[trajectory_index][p] = L.circle(
-                        new L.LatLng(trajectories[trajectory_index].positions_rotations_and_boxes[p].position[0],
-                            trajectories[trajectory_index].positions_rotations_and_boxes[p].position[1]),
-                        {
-                            radius: 0.5,
-                            color: ((trajectories[trajectory_index].id === 0) ? 'rgb(247, 76, 67)' : 'rgb(59, 173, 227)')
-                        }
-                    ).addTo(map);
-                }
-
-                points[trajectory_index][p].line_index = trajectory_index;
-                points[trajectory_index][p].point_index = p;
-                points[trajectory_index][p].addEventListener("mousedown", point_mousedown_function);
-                points[trajectory_index][p].addEventListener("mouseover", handle_mouseenter_point);
-                points[trajectory_index][p].addEventListener("mouseout", handle_mouseleave_point);
-            }
-
-            button_visibility();
-            redraw_object_map_object_outlines();
-        }
-
-    };
-    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    xhr.send(JSON.stringify(trajectories[trajectory_index]));
 }
 
 /**
@@ -165,8 +108,6 @@ function merge_objects(trajectory_id1, trajectory_id2) {
             const json_resp = JSON.parse(xhr.responseText);
             trajectories[trajectory_index1] = json_resp;
 
-            uninterpolate_boxes();
-
             initialize_points_and_lines();
 
             set_element_colors();
@@ -215,8 +156,6 @@ function add_points_form_submitted() {
 
                 const json_resp = JSON.parse(xhr.responseText);
                 trajectories[index_to_edit] = json_resp;
-
-                uninterpolate_boxes();
 
                 // remove old line and replace it with the new one + setting callbacks
 
