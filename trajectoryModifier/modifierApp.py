@@ -209,10 +209,11 @@ def fix_rotations(t):
             p = np.delete(p, 2, axis=1)
         grads = np.gradient(p, axis=0)
         norms = np.linalg.norm(grads, axis=1)
+        grads[norms < 0.0001] = [0,0]
         prev = None
         to_change = []
         for i, n in enumerate(norms):
-            if n == 0:
+            if n < 0.0001:
                 if prev:
                     norms[i] = norms[prev]
                     grads[i] = grads[prev]

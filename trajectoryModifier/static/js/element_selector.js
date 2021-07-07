@@ -61,14 +61,14 @@ function button_visibility() {
         let continuity_flag = true; // indicated that there are no "free" frames between other frames
         let constancy_flag = true;  // indicates that all positions are the same
         let prev_frame = trajectories[t].positions_rotations_and_boxes[0].frame - 1;
-        let lat = trajectories[t].positions_rotations_and_boxes[0].position[0];
-        let long = trajectories[t].positions_rotations_and_boxes[0].position[1];
+        let lat = trajectories[t].positions_rotations_and_boxes[0].position[0].toFixed(10);
+        let long = trajectories[t].positions_rotations_and_boxes[0].position[1].toFixed(10);
         // correctly calculate continuity and constancy flags
         for (let p = 0; p < trajectories[t].positions_rotations_and_boxes.length; p++) {
             if (prev_frame + 1 != trajectories[t].positions_rotations_and_boxes[p].frame) {
                 continuity_flag = false;
             }
-            if (lat != trajectories[t].positions_rotations_and_boxes[p].position[0] || long != trajectories[t].positions_rotations_and_boxes[p].position[1]) {
+            if (lat != trajectories[t].positions_rotations_and_boxes[p].position[0].toFixed(10) || long != trajectories[t].positions_rotations_and_boxes[p].position[1].toFixed(10)) {
                 constancy_flag = false;
             }
             prev_frame = trajectories[t].positions_rotations_and_boxes[p].frame;
