@@ -24,14 +24,14 @@ def estimate_splines(trajectory, smoothing_factor=0, onlySpecified=True):
 
     box_frame_list = [prb['frame'] for prb in trajectory['positions_rotations_and_boxes'] if ('box' in prb and not (onlySpecified and not (('detected' in prb and prb['detected']) or ('specified' in prb and prb['specified']))))]
     box0_list = [prb['box'][0] for prb in trajectory['positions_rotations_and_boxes'] if ('box' in prb and not (onlySpecified and not (('detected' in prb and prb['detected']) or ('specified' in prb and prb['specified']))))]
-    boy1_list = [prb['box'][1] for prb in trajectory['positions_rotations_and_boxes'] if ('box' in prb and not (onlySpecified and not (('detected' in prb and prb['detected']) or ('specified' in prb and prb['specified']))))]
+    box1_list = [prb['box'][1] for prb in trajectory['positions_rotations_and_boxes'] if ('box' in prb and not (onlySpecified and not (('detected' in prb and prb['detected']) or ('specified' in prb and prb['specified']))))]
     box2_list = [prb['box'][2] for prb in trajectory['positions_rotations_and_boxes'] if ('box' in prb and not (onlySpecified and not (('detected' in prb and prb['detected']) or ('specified' in prb and prb['specified']))))]
     box3_list = [prb['box'][3] for prb in trajectory['positions_rotations_and_boxes'] if ('box' in prb and not (onlySpecified and not (('detected' in prb and prb['detected']) or ('specified' in prb and prb['specified']))))]
 
     if len(box_frame_list) < 2:
         return tck_pos, None, None
 
-    tck_box_min, _ = interpolate.splprep([box0_list, boy1_list, box_frame_list], s=smoothing_factor, k=min(len(box_frame_list)-1, 3))
+    tck_box_min, _ = interpolate.splprep([box0_list, box1_list, box_frame_list], s=smoothing_factor, k=min(len(box_frame_list)-1, 3))
     tck_box_max, _ = interpolate.splprep([box2_list, box3_list, box_frame_list], s=smoothing_factor, k=min(len(box_frame_list)-1, 3))
     return tck_pos, tck_box_min, tck_box_max
 
@@ -49,7 +49,11 @@ def interpolate_trajectory(trajectory):
             prb = frame_dict[frame]
         except KeyError:
             prb = None
-        if not prb or not 'detected' in prb or 'specified' in prb or ('detected' in prb and not prb['detected']) or ('specified' in prb and not prb['specified']) or not 'position' in prb:
+        cond1 = not prb or not 'position' in prb
+        cond2 = ('detected' in prb and prb['detected'])
+        cond3 = ('specified' in prb and prb['specified'])
+        cond4 = (cond2 or cond3)
+        if cond1 or not cond4:
             pos = pos_at_time(pos_tck, frame)
             if not prb:
                 prb = {"frame": frame,

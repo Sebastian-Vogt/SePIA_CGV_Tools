@@ -224,6 +224,10 @@ function handle_resizer_click(e, rect, t, i){
         e.target.removeEventListener('mouseleave', up);
         trajectories[t].positions_rotations_and_boxes[i].specified = true;
         e.target.classList.remove("active_resizer");
+
+        interpolateTrajectory(t, function(){
+                draw_boxes();}
+            );
     };
 
     e.target.addEventListener('mousemove', move);

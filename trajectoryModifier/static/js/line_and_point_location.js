@@ -485,10 +485,6 @@ function handle_collapse(e) {
 
     map.on('mouseup', function (e) {
 
-        for (let selection_index = 0; selection_index < selection.length; selection_index++) {
-            trajectories[selection[selection_index][0]].positions_rotations_and_boxes[selection[selection_index][1]].specified = true;
-        }
-
         to_be_interpolated_trajectories = Array.from(new Set(selection.map(x => x[0])))
         for (let index = 0; index < to_be_interpolated_trajectories.length; index++) {
             interpolateTrajectory(to_be_interpolated_trajectories[index], function(){
@@ -497,6 +493,10 @@ function handle_collapse(e) {
                 set_circle_colors();
                 draw_boxes();}
             );
+            for (let selection_index = 0; selection_index < selection.length; selection_index++) {
+                trajectories[selection[selection_index][0]].positions_rotations_and_boxes[selection[selection_index][1]].specified = true;
+            }
+
         }
 
         // remove eventlistener otherwise they would stack
