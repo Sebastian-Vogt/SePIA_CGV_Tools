@@ -106,11 +106,19 @@ function handle_resizer_click(e, rect, t, i){
     let original_mouse_x = e.pageX;
     let original_mouse_y = e.pageY;
 
+    const boxes_div_height = parseInt(document.getElementById("boxes").clientHeight);
+    const boxes_div_width = parseInt(document.getElementById("boxes").clientWidth);
+
+    let x0 = original_x;
+    let y0 = original_y;
+    let x1 = original_x + original_width;
+    let y1 = original_y + original_height;
+
     function move(eve) {
-        let x0 = original_x;
-        let y0 = original_y;
-        let x1 = original_x + original_width;
-        let y1 = original_y + original_height;
+        x0 = original_x;
+        y0 = original_y;
+        x1 = original_x + original_width;
+        y1 = original_y + original_height;
         let width = 0;
         let height = 0;
         if(e.target.classList.contains('top_left_resizer')){
@@ -184,8 +192,6 @@ function handle_resizer_click(e, rect, t, i){
         }else
             return;
 
-        const video_div_height = parseInt(video.clientHeight);
-        const video_div_width = parseInt(video.clientWidth);
 
         // clamping
         if (x0 < 0){
@@ -196,12 +202,12 @@ function handle_resizer_click(e, rect, t, i){
             y0 = 0;
             height = y1-y0;
         }
-        if (x1 > video_div_width){
-            x1 = video_div_width;
+        if (x1 > boxes_div_width){
+            x1 = boxes_div_width;
             width = x1-x0;
         }
-        if (y1 > video_div_height){
-            y1 = video_div_height;
+        if (y1 > boxes_div_height){
+            y1 = boxes_div_height;
             height = y1-y0;
         }
 
@@ -210,24 +216,30 @@ function handle_resizer_click(e, rect, t, i){
         rect.style.width = width+'px';
         rect.style.height = height+'px';
 
-        trajectories[t].positions_rotations_and_boxes[i].box = [
-            x0/video_div_width*video_width,
-            y0/video_div_height*video_height,
-            x1/video_div_width*video_width,
-            y1/video_div_height*video_height
-        ];
-
     };
     function up(eve) {
+
+        trajectories[t].positions_rotations_and_boxes[i].box = [
+            x0/boxes_div_width*video_width,
+            y0/boxes_div_height*video_height,
+            x1/boxes_div_width*video_width,
+            y1/boxes_div_height*video_height
+        ];
+
         e.target.removeEventListener('mousemove', move);
         e.target.removeEventListener('mouseup', up);
         e.target.removeEventListener('mouseleave', up);
         trajectories[t].positions_rotations_and_boxes[i].specified = true;
         e.target.classList.remove("active_resizer");
 
-        interpolateTrajectory(t, function(){
-                draw_boxes();}
-            );
+        interpolateTrajectory(t, function() {
+            draw_boxes();
+            // update save button
+            if (!changes) {
+                changes = true;
+                updateSaveButton();
+            }
+        });
     };
 
     e.target.addEventListener('mousemove', move);
