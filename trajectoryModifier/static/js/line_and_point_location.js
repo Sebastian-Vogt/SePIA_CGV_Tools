@@ -234,12 +234,17 @@ function handle_move(e) {
 
         to_be_interpolated_trajectories = Array.from(new Set(selection.map(x => x[0])))
         for (let index = 0; index < to_be_interpolated_trajectories.length; index++) {
-            interpolateTrajectory(to_be_interpolated_trajectories[index], function(){
-                button_visibility();
-                redraw_object_map_object_outlines();
-                set_circle_colors();
-                draw_boxes();}
-            );
+            if(selection_mode == "point" || selection_mode == "selection"){
+                if(selection_mode == "selection" && selection.filter(s => s[0] == to_be_interpolated_trajectories[index]).length == trajectories[to_be_interpolated_trajectories[index]].positions_rotations_and_boxes.length){
+                    continue;
+                }
+                interpolateTrajectory(to_be_interpolated_trajectories[index], function(){
+                    button_visibility();
+                    redraw_object_map_object_outlines();
+                    set_circle_colors();
+                    draw_boxes();}
+                );
+            }
         }
 
         button_visibility();
@@ -335,12 +340,17 @@ function handle_rotate(e) {
 
         to_be_interpolated_trajectories = Array.from(new Set(selection.map(x => x[0])))
         for (let index = 0; index < to_be_interpolated_trajectories.length; index++) {
-            interpolateTrajectory(to_be_interpolated_trajectories[index], function(){
-                button_visibility();
-                redraw_object_map_object_outlines();
-                set_circle_colors();
-                draw_boxes();}
-            );
+            if(selection_mode == "point" || selection_mode == "selection"){
+                if(selection_mode == "selection" && selection.filter(s => s[0] == to_be_interpolated_trajectories[index]).length == trajectories[to_be_interpolated_trajectories[index]].positions_rotations_and_boxes.length){
+                    continue;
+                }
+                interpolateTrajectory(to_be_interpolated_trajectories[index], function(){
+                    button_visibility();
+                    redraw_object_map_object_outlines();
+                    set_circle_colors();
+                    draw_boxes();}
+                );
+            }
         }
 
         button_visibility();
@@ -426,12 +436,17 @@ function handle_scale(e) {
 
         to_be_interpolated_trajectories = Array.from(new Set(selection.map(x => x[0])))
         for (let index = 0; index < to_be_interpolated_trajectories.length; index++) {
-            interpolateTrajectory(to_be_interpolated_trajectories[index], function(){
-                button_visibility();
-                redraw_object_map_object_outlines();
-                set_circle_colors();
-                draw_boxes();}
-            );
+            if(selection_mode == "point" || selection_mode == "selection"){
+                if(selection_mode == "selection" && selection.filter(s => s[0] == to_be_interpolated_trajectories[index]).length == trajectories[to_be_interpolated_trajectories[index]].positions_rotations_and_boxes.length){
+                    continue;
+                }
+                interpolateTrajectory(to_be_interpolated_trajectories[index], function(){
+                    button_visibility();
+                    redraw_object_map_object_outlines();
+                    set_circle_colors();
+                    draw_boxes();}
+                );
+            }
         }
 
         button_visibility();
@@ -485,18 +500,18 @@ function handle_collapse(e) {
 
     map.on('mouseup', function (e) {
 
+        for (let selection_index = 0; selection_index < selection.length; selection_index++) {
+            trajectories[selection[selection_index][0]].positions_rotations_and_boxes[selection[selection_index][1]].specified = true;
+        }
+
         to_be_interpolated_trajectories = Array.from(new Set(selection.map(x => x[0])))
         for (let index = 0; index < to_be_interpolated_trajectories.length; index++) {
             interpolateTrajectory(to_be_interpolated_trajectories[index], function(){
                 button_visibility();
                 redraw_object_map_object_outlines();
                 set_circle_colors();
-                draw_boxes();}
-            );
-            for (let selection_index = 0; selection_index < selection.length; selection_index++) {
-                trajectories[selection[selection_index][0]].positions_rotations_and_boxes[selection[selection_index][1]].specified = true;
-            }
-
+                draw_boxes();
+            });
         }
 
         // remove eventlistener otherwise they would stack
