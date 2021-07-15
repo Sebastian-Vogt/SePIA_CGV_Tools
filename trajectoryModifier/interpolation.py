@@ -50,9 +50,10 @@ def interpolate_trajectory(trajectory):
         except KeyError:
             prb = None
         cond1 = not prb or not 'position' in prb
-        cond2 = ('detected' in prb and prb['detected'])
-        cond3 = ('specified' in prb and prb['specified'])
-        cond4 = (cond2 or cond3)
+        if prb:
+            cond2 = ('detected' in prb and prb['detected'])
+            cond3 = ('specified' in prb and prb['specified'])
+            cond4 = (cond2 or cond3)
         if cond1 or not cond4:
             pos = pos_at_time(pos_tck, frame)
             if not prb:
