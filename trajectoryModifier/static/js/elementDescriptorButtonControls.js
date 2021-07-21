@@ -757,6 +757,7 @@ function set_object_orientation(event) {
 
         for (let p = 0; p < trajectories[trajectory_index].positions_rotations_and_boxes.length; p++) {
             trajectories[trajectory_index].positions_rotations_and_boxes[p].rotation = degrees;
+            trajectories[trajectory_index].positions_rotations_and_boxes[p].rotation_specified = true;
         }
 
         map.removeLayer(line);
@@ -767,6 +768,11 @@ function set_object_orientation(event) {
 
         redraw_object_map_object_outlines();
         map.dragging.enable();
+
+        if (!changes) {
+            changes = true;
+            updateSaveButton();
+        }
     });
 }
 

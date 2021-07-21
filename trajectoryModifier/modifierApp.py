@@ -231,7 +231,8 @@ def fix_rotations(t):
         rads = np.arccos(np.dot(grads, [0, 1]))
 
     for i, rad in enumerate(rads):
-        t["positions_rotations_and_boxes"][i]["rotation"] = rad / math.pi * 180 * -np.sign(grads[i][0])
+        if not "rotation_specified" in t["positions_rotations_and_boxes"][i]:
+            t["positions_rotations_and_boxes"][i]["rotation"] = rad / math.pi * 180 * -np.sign(grads[i][0])
 
     return t
 
