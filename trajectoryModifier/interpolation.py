@@ -1,5 +1,6 @@
 from scipy import interpolate, optimize
 import numpy as np
+import pandas as pd
 
 
 def eval(u, t, tck):
@@ -36,31 +37,76 @@ def estimate_splines(trajectory, smoothing_factor=0, onlySpecified=True):
     return tck_pos, tck_box_min, tck_box_max
 
 
-def interpolate_trajectory(trajectory):
+def interpolate_trajectory(trajectory, interpolate_boxes=True, pandas=True):
 
     frame_dict = {prb['frame']: prb for prb in trajectory['positions_rotations_and_boxes'] if 'frame' in prb}
     if len(frame_dict.items()) <= 1:
         return trajectory
 
-    pos_tck, box_min_tck, box_max_tck = estimate_splines(trajectory)
+    if pandas:
+        frames = list(range(min(list(frame_dict.keys())), max(list(frame_dict.keys()))+1))
+        data = []
+        degree = -1
+        for frame in frames:
+            try:
+                prb = frame_dict[frame]
+            except KeyError:
+                prb = None
+            if not prb or not ('position' in prb and (('detected' in prb and prb['detected']) or ('specified' in prb and prb['specified']))):
+                lat = np.nan
+                long = np.nan
+            else:
+                lat = prb['position'][0]
+                long = prb['position'][1]
+                degree += 1
+            if not prb or not ('box' in prb and (('detected' in prb and prb['detected']) or ('specified' in prb and prb['specified']))):
+                xmin = np.nan
+                ymin = np.nan
+                xmax = np.nan
+                ymax = np.nan
+            else:
+                xmin = prb['box'][0]
+                ymin = prb['box'][1]
+                xmax = prb['box'][2]
+                ymax = prb['box'][3]
+            data.append([lat, long, xmin, ymin, xmax, ymax])
+        series = pd.DataFrame(data, columns=['lat','long','xmin','ymin','xmax','ymax'], index=frames)
+        if degree >= 5:
+            kw = dict(method='spline', order=5, axis=0, fill_value='extrapolate')
+        elif degree >= 2:
+            kw = dict(method='spline', order=degree, axis=0, fill_value='extrapolate')
+        elif degree == 1:
+            kw = dict(method='linear', axis=0, fill_value='extrapolate')
+        else:
+            kw = dict(method='nearest', axis=0, fill_value='extrapolate')
+        series = series.interpolate(**kw).iloc[::-1].interpolate(**kw).iloc[::-1]
+    else:
+        pos_tck, box_min_tck, box_max_tck = estimate_splines(trajectory)
 
     for frame in range(min(list(frame_dict.keys())), max(list(frame_dict.keys()))+1):
         try:
             prb = frame_dict[frame]
         except KeyError:
             prb = None
-        if not prb or not 'detected' in prb or 'specified' in prb or ('detected' in prb and not prb['detected']) or ('specified' in prb and not prb['specified']) or not 'position' in prb:
-            pos = pos_at_time(pos_tck, frame)
-            if not prb:
-                prb = {"frame": frame,
-                       "position": [float(pos[0]), float(pos[1])],
-                       "confidence": 0.0}
+
+        cond1 = not prb or not 'position' in prb
+        if prb:
+            cond2 = ('detected' in prb and prb['detected'])
+            cond3 = ('specified' in prb and prb['specified'])
+            cond4 = (cond2 or cond3)
+        if cond1 or not cond4:
+            if pandas:
+                pos = [series.at[frame, 'lat'], series.at[frame, 'long']]
             else:
-                prb["position"] = [float(pos[0]), float(pos[1])]
-            if box_min_tck and box_max_tck:
-                box_min = pos_at_time(box_min_tck, prb["frame"])
-                box_max = pos_at_time(box_max_tck, prb["frame"])
-                prb["box"] = [float(box_min[0]), float(box_min[1]), float(box_max[0]), float(box_max[1])]
+                pos = pos_at_time(pos_tck, frame)
+
+            if interpolate_boxes:
+                if pandas:
+                    prb["box"] = [float(series.at[frame, 'xmin']), float(series.at[frame, 'ymin']), float(series.at[frame, 'xmax']), float(series.at[frame, 'ymax'])]
+                if not pandas and box_min_tck and box_max_tck:
+                    box_min = pos_at_time(box_min_tck, prb["frame"])
+                    box_max = pos_at_time(box_max_tck, prb["frame"])
+                    prb["box"] = [float(box_min[0]), float(box_min[1]), float(box_max[0]), float(box_max[1])]
 
             frame_dict[frame] = prb
     prbs = sorted(frame_dict.values(),key=lambda prb: prb['frame'])
