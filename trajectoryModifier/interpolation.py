@@ -37,78 +37,92 @@ def estimate_splines(trajectory, smoothing_factor=0, onlySpecified=True):
     return tck_pos, tck_box_min, tck_box_max
 
 
-def interpolate_trajectory(trajectory, interpolate_boxes=True, pandas=True):
+def interpolate_trajectory(trajectory, interpolate_boxes=True):
 
     frame_dict = {prb['frame']: prb for prb in trajectory['positions_rotations_and_boxes'] if 'frame' in prb}
     if len(frame_dict.items()) <= 1:
         return trajectory
 
-    if pandas:
-        frames = list(range(min(list(frame_dict.keys())), max(list(frame_dict.keys()))+1))
-        data = []
-        degree = -1
-        for frame in frames:
-            try:
-                prb = frame_dict[frame]
-            except KeyError:
-                prb = None
-            if not prb or not ('position' in prb and (('detected' in prb and prb['detected']) or ('specified' in prb and prb['specified']))):
-                lat = np.nan
-                long = np.nan
-            else:
-                lat = prb['position'][0]
-                long = prb['position'][1]
-                degree += 1
-            if not prb or not ('box' in prb and (('detected' in prb and prb['detected']) or ('specified' in prb and prb['specified']))):
-                xmin = np.nan
-                ymin = np.nan
-                xmax = np.nan
-                ymax = np.nan
-            else:
-                xmin = prb['box'][0]
-                ymin = prb['box'][1]
-                xmax = prb['box'][2]
-                ymax = prb['box'][3]
-            data.append([lat, long, xmin, ymin, xmax, ymax])
-        series = pd.DataFrame(data, columns=['lat','long','xmin','ymin','xmax','ymax'], index=frames)
-        if degree >= 5:
-            kw = dict(method='spline', order=5, axis=0, fill_value='extrapolate')
-        elif degree >= 2:
-            kw = dict(method='spline', order=degree, axis=0, fill_value='extrapolate')
-        elif degree == 1:
-            kw = dict(method='linear', axis=0, fill_value='extrapolate')
-        else:
-            kw = dict(method='nearest', axis=0, fill_value='extrapolate')
-        series = series.interpolate(**kw).iloc[::-1].interpolate(**kw).iloc[::-1]
-    else:
-        pos_tck, box_min_tck, box_max_tck = estimate_splines(trajectory)
+    frames = list(range(min(list(frame_dict.keys())), max(list(frame_dict.keys()))+1))
+    lats = []
+    longs = []
+    pos_frames = []
+    pos_frames_2_interp = []
 
-    for frame in range(min(list(frame_dict.keys())), max(list(frame_dict.keys()))+1):
+    xmins = []
+    xmaxs = []
+    ymins =[]
+    ymaxs = []
+    box_frames = []
+    box_frames_2_interp = []
+    for frame in frames:
         try:
             prb = frame_dict[frame]
-        except KeyError:
-            prb = None
-
-        cond1 = not prb or not 'position' in prb
-        if prb:
-            cond2 = ('detected' in prb and prb['detected'])
-            cond3 = ('specified' in prb and prb['specified'])
-            cond4 = (cond2 or cond3)
-        if cond1 or not cond4:
-            if pandas:
-                pos = [series.at[frame, 'lat'], series.at[frame, 'long']]
+            if ('position' in prb and (
+                    ('detected' in prb and prb['detected']) or ('specified' in prb and prb['specified']))):
+                lats.append(prb['position'][0])
+                longs.append(prb['position'][1])
+                pos_frames.append(frame)
             else:
-                pos = pos_at_time(pos_tck, frame)
+                pos_frames_2_interp.append(frame)
+            if ('box' in prb and (
+                    ('detected' in prb and prb['detected']) or ('specified' in prb and prb['specified']))):
+                xmins.append(prb['box'][0])
+                ymins.append(prb['box'][1])
+                xmaxs.append(prb['box'][2])
+                ymaxs.append(prb['box'][3])
+                box_frames.append(frame)
+            else:
+                box_frames_2_interp.append(frame)
+        except KeyError:
+            pos_frames_2_interp.append(frame)
+            box_frames_2_interp.append(frame)
+            continue
 
-            if interpolate_boxes:
-                if pandas:
-                    prb["box"] = [float(series.at[frame, 'xmin']), float(series.at[frame, 'ymin']), float(series.at[frame, 'xmax']), float(series.at[frame, 'ymax'])]
-                if not pandas and box_min_tck and box_max_tck:
-                    box_min = pos_at_time(box_min_tck, prb["frame"])
-                    box_max = pos_at_time(box_max_tck, prb["frame"])
-                    prb["box"] = [float(box_min[0]), float(box_min[1]), float(box_max[0]), float(box_max[1])]
+    pos_degree = len(pos_frames)-1
+    if pos_degree >= 0 and len(pos_frames_2_interp) > 0:
+        pos_degree = "zero" if pos_degree == 0 else ("slinear" if pos_degree == 1 else ("quadratic" if pos_degree == 2 else ("cubic")))
+        lat_inter = interpolate.interp1d(pos_frames, lats, kind=pos_degree, fill_value="extrapolate")
+        long_inter = interpolate.interp1d(pos_frames, longs, kind=pos_degree, fill_value="extrapolate")
 
+        for frame in pos_frames_2_interp:
+            lat = lat_inter(frame).item()
+            long = long_inter(frame).item()
+            pos = [lat, long]
+            try:
+                prb = frame_dict[frame]
+                prb["position"] = pos
+            except KeyError:
+                prb = {"frame": frame,
+                       "position": pos,
+                       "confidence": 0.0}
             frame_dict[frame] = prb
+
+    box_degree = len(box_frames) - 1
+    if box_degree >= 0 and len(box_frames_2_interp) > 0:
+        box_degree = "zero" if box_degree == 0 else (
+            "slinear" if box_degree == 1 else ("quadratic" if box_degree == 2 else ("cubic")))
+        xmin_inter = interpolate.interp1d(box_frames, xmins, kind=box_degree, fill_value="extrapolate")
+        ymin_inter = interpolate.interp1d(box_frames, ymins, kind=box_degree, fill_value="extrapolate")
+        xmax_inter = interpolate.interp1d(box_frames, xmaxs, kind=box_degree, fill_value="extrapolate")
+        ymax_inter = interpolate.interp1d(box_frames, ymaxs, kind=box_degree, fill_value="extrapolate")
+
+        for frame in box_frames_2_interp:
+            xmin = xmin_inter(frame).item()
+            ymin = ymin_inter(frame).item()
+            xmax = xmax_inter(frame).item()
+            ymax = ymax_inter(frame).item()
+            box = [xmin, ymin, xmax, ymax]
+            try:
+                prb = frame_dict[frame]
+                prb["box"] = box
+            except KeyError:
+                prb = {"frame": frame,
+                       "box": box,
+                       "confidence": 0.0}
+            frame_dict[frame] = prb
+
+
     prbs = sorted(frame_dict.values(),key=lambda prb: prb['frame'])
 
     trajectory['positions_rotations_and_boxes'] = prbs
