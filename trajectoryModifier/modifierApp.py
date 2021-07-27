@@ -108,7 +108,8 @@ def index():
     with open(trajanPath) as json_file:
         json_trajectories_dict = json.load(json_file)
         nr_frames = max([max([pbr["frame"] for pbr in traj["positions_rotations_and_boxes"]]) for traj in json_trajectories_dict["trajectories"] if len(traj["positions_rotations_and_boxes"])])
-        response = render_template('index.html', nr_frames=nr_frames, trajectories=json_trajectories_dict["trajectories"])
+        trajectories = [(t, any(["confidence" in prb for prb in t["positions_rotations_and_boxes"]])) for t in json_trajectories_dict["trajectories"]]
+        response = render_template('index.html', nr_frames=nr_frames, trajectories=trajectories)
     return response
 
 
