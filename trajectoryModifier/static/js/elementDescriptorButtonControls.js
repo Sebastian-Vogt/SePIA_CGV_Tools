@@ -5,7 +5,7 @@ function interpolate_points(event) {
     const trajectory_id = event.target.closest(".elementButtonRegion").getAttribute("data-id");
     let trajectory_index = trajectories.findIndex(t => "id"+t.id === trajectory_id);
 
-    interpolateTrajectory(trajectory_index, function(){
+    interpolateTrajectory(trajectory_index, true, function(){
         button_visibility();
         redraw_object_map_object_outlines();
         set_circle_colors();
@@ -265,7 +265,8 @@ function add_points_form_submitted() {
             let pbr = {
                 "frame": starting_frame + i,
                 "position": [lat, long],
-                "is_interpolated": true
+                "is_interpolated": true,
+                "box": [0,0,video_width, video_height]
             }
             trajectories[index_to_edit].positions_rotations_and_boxes.push(pbr);
         }
@@ -376,10 +377,27 @@ function cancel_add_points() {
  */
 function numberOfPointsValidation() {
     let value = parseInt(document.getElementById("numberOfPoints").value);
+    let startValue = parseInt(document.getElementById("frameToStartInput").value);
+    if (isNaN(startValue)) {
+        startValue = 1;
+    } else if (startValue < 1) {
+        startValue = 1;
+    } else if (startValue >= nr_frames && document.getElementById("newPointDirection").checked) {
+        startValue = nr_frames-1;
+    } else if (startValue >= nr_frames && !document.getElementById("newPointDirection").checked) {
+        startValue = 2;
+    }
+
     if (isNaN(value)) {
         value = 1;
     } else if (value < 1) {
         value = 1;
+    } else if(trajectories[index_to_edit].positions_rotations_and_boxes.length == 0){
+        if (document.getElementById("newPointDirection").checked && value + startValue >= nr_frames){
+            value = nr_frames - startValue;
+        } else if(!document.getElementById("newPointDirection").checked && startValue-value < 0){
+            value = startValue;
+        }
     } else if (document.getElementById("newPointDirection").checked && value + trajectories[index_to_edit].positions_rotations_and_boxes[trajectories[index_to_edit].positions_rotations_and_boxes.length - 1].frame >= nr_frames) {
         value = nr_frames - trajectories[index_to_edit].positions_rotations_and_boxes[trajectories[index_to_edit].positions_rotations_and_boxes.length - 1].frame;
     } else if (!document.getElementById("newPointDirection").checked && trajectories[index_to_edit].positions_rotations_and_boxes[0].frame - value < 0) {

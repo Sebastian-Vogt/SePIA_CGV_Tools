@@ -238,7 +238,7 @@ function handle_move(e) {
                 if(selection_mode == "selection" && selection.filter(s => s[0] == to_be_interpolated_trajectories[index]).length == trajectories[to_be_interpolated_trajectories[index]].positions_rotations_and_boxes.length){
                     continue;
                 }
-                interpolateTrajectory(to_be_interpolated_trajectories[index], function(){
+                interpolateTrajectory(to_be_interpolated_trajectories[index], false, function(){
                     button_visibility();
                     redraw_object_map_object_outlines();
                     set_circle_colors();
@@ -344,7 +344,7 @@ function handle_rotate(e) {
                 if(selection_mode == "selection" && selection.filter(s => s[0] == to_be_interpolated_trajectories[index]).length == trajectories[to_be_interpolated_trajectories[index]].positions_rotations_and_boxes.length){
                     continue;
                 }
-                interpolateTrajectory(to_be_interpolated_trajectories[index], function(){
+                interpolateTrajectory(to_be_interpolated_trajectories[index], false, function(){
                     button_visibility();
                     redraw_object_map_object_outlines();
                     set_circle_colors();
@@ -440,7 +440,7 @@ function handle_scale(e) {
                 if(selection_mode == "selection" && selection.filter(s => s[0] == to_be_interpolated_trajectories[index]).length == trajectories[to_be_interpolated_trajectories[index]].positions_rotations_and_boxes.length){
                     continue;
                 }
-                interpolateTrajectory(to_be_interpolated_trajectories[index], function(){
+                interpolateTrajectory(to_be_interpolated_trajectories[index], false, function(){
                     button_visibility();
                     redraw_object_map_object_outlines();
                     set_circle_colors();
@@ -506,7 +506,7 @@ function handle_collapse(e) {
 
         to_be_interpolated_trajectories = Array.from(new Set(selection.map(x => x[0])))
         for (let index = 0; index < to_be_interpolated_trajectories.length; index++) {
-            interpolateTrajectory(to_be_interpolated_trajectories[index], function(){
+            interpolateTrajectory(to_be_interpolated_trajectories[index], false, function(){
                 button_visibility();
                 redraw_object_map_object_outlines();
                 set_circle_colors();
@@ -831,8 +831,9 @@ function gaussianKernel1d(size, sigma) {
     return kernel;
 }
 
-function interpolateTrajectory(index, callback_f){
+function interpolateTrajectory(index, interpolate_missing_frames, callback_f){
 
+    let message = ((interpolate_missing_frames) ? {"trajectory": trajectories[index], "interpolate_missing_frames": true}:trajectories[index]);
     const xhr = new XMLHttpRequest();
     const theUrl = "/interpolate";
     xhr.open("POST", theUrl);
@@ -892,7 +893,7 @@ function interpolateTrajectory(index, callback_f){
 
     };
     xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    xhr.send(JSON.stringify(trajectories[index]));
+    xhr.send(JSON.stringify(message));
 
 
 }

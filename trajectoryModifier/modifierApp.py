@@ -76,7 +76,12 @@ def recalibrate():
 @app.route("/interpolate", methods=['POST'])
 def interpolate_trajectory():
     trajectory = request.get_json()
-    interpolated_trajectory = inter.interpolate_trajectory(trajectory)
+    if "interpolate_missing_frames" in trajectory:
+        trajectory = trajectory["trajectory"]
+        interpolate_missing_frames = True
+    else:
+        interpolate_missing_frames = False
+    interpolated_trajectory = inter.interpolate_trajectory(trajectory, interpolate_missing_frames)
     interpolated_trajectory = fix_rotations(interpolated_trajectory)
     return jsonify(interpolated_trajectory)
 

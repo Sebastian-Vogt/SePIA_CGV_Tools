@@ -1,7 +1,7 @@
 from scipy import interpolate
 
 
-def interpolate_trajectory(trajectory):
+def interpolate_trajectory(trajectory, interpolate_missing_frames=False):
 
     frame_dict = {prb['frame']: prb for prb in trajectory['positions_rotations_and_boxes'] if 'frame' in prb}
     if len(frame_dict.items()) <= 1:
@@ -39,8 +39,9 @@ def interpolate_trajectory(trajectory):
             else:
                 box_frames_2_interp.append(frame)
         except KeyError:
-            pos_frames_2_interp.append(frame)
-            box_frames_2_interp.append(frame)
+            if interpolate_missing_frames:
+                pos_frames_2_interp.append(frame)
+                box_frames_2_interp.append(frame)
             continue
 
     pos_degree = len(pos_frames)-1
@@ -125,7 +126,7 @@ def extrapolate_points(trajectory, frames):
     prbs = []
     box_degree = len(box_frames) - 1
     pos_degree = len(pos_frames)-1
-    if pos_degree >= 0 and box_degree >= 0 and len(frames > 0):
+    if pos_degree >= 0 and box_degree >= 0 and len(frames) > 0:
         pos_degree = "zero" if pos_degree == 0 else ("slinear" if pos_degree == 1 else ("quadratic" if pos_degree == 2 else ("cubic")))
         box_degree = "zero" if box_degree == 0 else ("slinear" if box_degree == 1 else ("quadratic" if box_degree == 2 else ("cubic")))
         lat_inter = interpolate.interp1d(pos_frames, lats, kind=pos_degree, fill_value="extrapolate")
