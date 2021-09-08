@@ -58,9 +58,19 @@ function interval_function(play_button, pause_button, time_text_element) {
         hide_and_show_elements();
         set_element_colors();
         set_circle_colors();
+        bringCurrentCirclesToFront();
         correct_lines();
         button_visibility();
         redraw_object_map_object_outlines();
+    }
+}
+function bringCurrentCirclesToFront(){
+    for (let l = 0; l < points.length; l++) {
+        for (let p = 0; p < points[l].length; p++) {
+            if(current_frame == trajectories[l].positions_rotations_and_boxes[p].frame){
+                points[l][p].bringToFront();
+            }
+        }
     }
 }
 /**
@@ -79,6 +89,7 @@ function on_slider(play_button, pause_button, time_text_element) {
     hide_and_show_elements();
     set_element_colors();
     set_circle_colors();
+    bringCurrentCirclesToFront();
     correct_lines();
     button_visibility();
     redraw_object_map_object_outlines();
