@@ -12,13 +12,6 @@ def interpolate_trajectory(trajectory, interpolate_missing_frames=False):
     longs = []
     pos_frames = []
     pos_frames_2_interp = []
-
-    xmins = []
-    xmaxs = []
-    ymins =[]
-    ymaxs = []
-    box_frames = []
-    box_frames_2_interp = []
     for frame in frames:
         try:
             prb = frame_dict[frame]
@@ -29,19 +22,10 @@ def interpolate_trajectory(trajectory, interpolate_missing_frames=False):
                 pos_frames.append(frame)
             else:
                 pos_frames_2_interp.append(frame)
-            if ('box' in prb and (
-                    ('detected' in prb and prb['detected']) or ('specified' in prb and prb['specified']))):
-                xmins.append(prb['box'][0])
-                ymins.append(prb['box'][1])
-                xmaxs.append(prb['box'][2])
-                ymaxs.append(prb['box'][3])
-                box_frames.append(frame)
-            else:
-                box_frames_2_interp.append(frame)
+
         except KeyError:
             if interpolate_missing_frames:
                 pos_frames_2_interp.append(frame)
-                box_frames_2_interp.append(frame)
             continue
 
     pos_degree = len(pos_frames)-1
@@ -62,6 +46,42 @@ def interpolate_trajectory(trajectory, interpolate_missing_frames=False):
                        "position": pos,
                        "confidence": 0.0}
             frame_dict[frame] = prb
+
+    prbs = sorted(frame_dict.values(),key=lambda prb: prb['frame'])
+
+    trajectory['positions_rotations_and_boxes'] = prbs
+
+    return trajectory
+
+
+def interpolate_bounding_boxes(trajectory):
+
+    frame_dict = {prb['frame']: prb for prb in trajectory['positions_rotations_and_boxes'] if 'frame' in prb}
+    if len(frame_dict.items()) <= 1:
+        return trajectory
+
+    frames = list(range(min(list(frame_dict.keys())), max(list(frame_dict.keys()))+1))
+
+    xmins = []
+    xmaxs = []
+    ymins =[]
+    ymaxs = []
+    box_frames = []
+    box_frames_2_interp = []
+    for frame in frames:
+        try:
+            prb = frame_dict[frame]
+            if ('box' in prb and (
+                    ('detected' in prb and prb['detected']) or ('bb_specified' in prb and prb['bb_specified']))):
+                xmins.append(prb['box'][0])
+                ymins.append(prb['box'][1])
+                xmaxs.append(prb['box'][2])
+                ymaxs.append(prb['box'][3])
+                box_frames.append(frame)
+            else:
+                box_frames_2_interp.append(frame)
+        except KeyError:
+            continue
 
     box_degree = len(box_frames) - 1
     if box_degree >= 0 and len(box_frames_2_interp) > 0:
@@ -93,7 +113,6 @@ def interpolate_trajectory(trajectory, interpolate_missing_frames=False):
     trajectory['positions_rotations_and_boxes'] = prbs
 
     return trajectory
-
 
 def extrapolate_points(trajectory, frames):
 

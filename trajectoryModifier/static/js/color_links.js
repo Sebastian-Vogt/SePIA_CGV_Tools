@@ -148,24 +148,24 @@ function set_box_colors() {
                     }
                 }
                 let box_color;
-                let line_type = (trajectories[t].positions_rotations_and_boxes[pbr_index].detected || trajectories[t].positions_rotations_and_boxes[pbr_index].specified) ? '3px solid': '2px dashed';
+                let line_type = (trajectories[t].positions_rotations_and_boxes[pbr_index].detected || trajectories[t].positions_rotations_and_boxes[pbr_index].bb_specified) ? '3px solid': '2px dashed';
 
                 // main stuff
                 if ((selection.filter(el => el[0] == t).length > 0 && highlight.length == 0 && selection.filter(el => el[0] == t).map(el => trajectories[el[0]].positions_rotations_and_boxes[el[1]].frame).includes(current_frame))
                     || (highlight.filter(el => el[0] == t).length > 0 && highlight.filter(el => el[0] == t).map(el => trajectories[el[0]].positions_rotations_and_boxes[el[1]].frame).includes(current_frame))) {
 
-                    box_color = (trajectories[t].positions_rotations_and_boxes[pbr_index].detected || trajectories[t].positions_rotations_and_boxes[pbr_index].specified) ? 'rgb(61, 227, 105)' : 'rgb(41, 153, 71)';
-                    box.style.backgroundColor = (trajectories[t].positions_rotations_and_boxes[pbr_index].detected || trajectories[t].positions_rotations_and_boxes[pbr_index].specified) ? 'rgba(61, 227, 105, 0.3)' : 'rgba(41, 153, 71, 0.3)';
+                    box_color = (trajectories[t].positions_rotations_and_boxes[pbr_index].detected || trajectories[t].positions_rotations_and_boxes[pbr_index].bb_specified) ? 'rgb(61, 227, 105)' : 'rgb(41, 153, 71)';
+                    box.style.backgroundColor = (trajectories[t].positions_rotations_and_boxes[pbr_index].detected || trajectories[t].positions_rotations_and_boxes[pbr_index].bb_specified) ? 'rgba(61, 227, 105, 0.3)' : 'rgba(41, 153, 71, 0.3)';
 
                 } else if (trajectories[t].id === 0) {
 
-                    box_color = (trajectories[t].positions_rotations_and_boxes[pbr_index].detected || trajectories[t].positions_rotations_and_boxes[pbr_index].specified) ? 'rgb(247, 76, 67)' : 'rgb(173, 53, 47)';
-                    box.style.backgroundColor = (trajectories[t].positions_rotations_and_boxes[pbr_index].detected || trajectories[t].positions_rotations_and_boxes[pbr_index].specified) ? 'rgba(247, 76, 67, 0.3)' : 'rgba(173, 53, 47, 0.3)';
+                    box_color = (trajectories[t].positions_rotations_and_boxes[pbr_index].detected || trajectories[t].positions_rotations_and_boxes[pbr_index].bb_specified) ? 'rgb(247, 76, 67)' : 'rgb(173, 53, 47)';
+                    box.style.backgroundColor = (trajectories[t].positions_rotations_and_boxes[pbr_index].detected || trajectories[t].positions_rotations_and_boxes[pbr_index].bb_specified) ? 'rgba(247, 76, 67, 0.3)' : 'rgba(173, 53, 47, 0.3)';
 
                 } else {
 
-                    box_color = (trajectories[t].positions_rotations_and_boxes[pbr_index].detected || trajectories[t].positions_rotations_and_boxes[pbr_index].specified) ? 'rgb(59, 173, 227)' : 'rgb(40, 117, 153)';
-                    box.style.backgroundColor = (trajectories[t].positions_rotations_and_boxes[pbr_index].detected || trajectories[t].positions_rotations_and_boxes[pbr_index].specified) ? 'rgba(59, 173, 227, 0.3)' : 'rgba(40, 117, 153, 0.3)';
+                    box_color = (trajectories[t].positions_rotations_and_boxes[pbr_index].detected || trajectories[t].positions_rotations_and_boxes[pbr_index].bb_specified) ? 'rgb(59, 173, 227)' : 'rgb(40, 117, 153)';
+                    box.style.backgroundColor = (trajectories[t].positions_rotations_and_boxes[pbr_index].detected || trajectories[t].positions_rotations_and_boxes[pbr_index].bb_specified) ? 'rgba(59, 173, 227, 0.3)' : 'rgba(40, 117, 153, 0.3)';
 
                 }
 

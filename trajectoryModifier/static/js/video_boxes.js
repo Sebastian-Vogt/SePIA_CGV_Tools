@@ -94,7 +94,7 @@ function draw_boxes() {
     }
 }
 
-// TODO add resize bbxes
+
 function handle_resizer_click(e, rect, t, i){
 
     e.target.classList.add("active_resizer");
@@ -229,10 +229,10 @@ function handle_resizer_click(e, rect, t, i){
         e.target.removeEventListener('mousemove', move);
         e.target.removeEventListener('mouseup', up);
         e.target.removeEventListener('mouseleave', up);
-        trajectories[t].positions_rotations_and_boxes[i].specified = true;
+        trajectories[t].positions_rotations_and_boxes[i].bb_specified = true;
         e.target.classList.remove("active_resizer");
 
-        interpolateTrajectory(t, true, function() {
+        interpolateBBx(t, function() {
             draw_boxes();
             // update save button
             if (!changes) {
@@ -247,3 +247,19 @@ function handle_resizer_click(e, rect, t, i){
     e.target.addEventListener('mouseleave', up);
 }
 
+function interpolateBBx(index, callback_f){
+
+    let message = trajectories[index];
+    const xhr = new XMLHttpRequest();
+    const theUrl = "/interpolateBBx";
+    xhr.open("POST", theUrl);
+    xhr.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            callback_f();
+        }
+    };
+    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    xhr.send(JSON.stringify(message));
+
+
+}

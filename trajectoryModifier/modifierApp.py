@@ -86,6 +86,13 @@ def interpolate_trajectory():
     return jsonify(interpolated_trajectory)
 
 
+@app.route("/interpolateBBx", methods=['POST'])
+def interpolate_BBx():
+    trajectory = request.get_json()
+    interpolated_trajectory = inter.interpolate_bounding_boxes(trajectory)
+    return jsonify(interpolated_trajectory)
+
+
 @app.route("/smooth", methods=['POST'])
 def smooth_trajectory():
     trajectory = request.get_json()
