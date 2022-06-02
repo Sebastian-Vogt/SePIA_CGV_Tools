@@ -71,8 +71,7 @@ def interpolate_bounding_boxes(trajectory):
     for frame in frames:
         try:
             prb = frame_dict[frame]
-            if ('box' in prb and (
-                    ('detected' in prb and prb['detected']) or ('bb_specified' in prb and prb['bb_specified']))):
+            if ('box' in prb and (('detected' in prb and prb['detected']) or ('bb_specified' in prb and prb['bb_specified']))):
                 xmins.append(prb['box'][0])
                 ymins.append(prb['box'][1])
                 xmaxs.append(prb['box'][2])

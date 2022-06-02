@@ -34,60 +34,62 @@ function draw_boxes() {
             for (let i = 0; i < trajectories[t].positions_rotations_and_boxes.length; i++) {
                 if (trajectories[t].positions_rotations_and_boxes[i].frame == current_frame) {
                     const box_coords = trajectories[t].positions_rotations_and_boxes[i].box;
-                    const rect = document.createElement("div");
-                    rect.id = "id" + trajectories[t].id + "box";
-                    rect.style.position = "absolute";
-                    rect.style.left = (width / video_width * ((box_coords[0] < video_width) ? ((box_coords[0] < 0) ? 0 : box_coords[0]) : video_width)).toString() + "px";
-                    rect.style.top = (height / video_height * ((box_coords[1] < video_height) ? ((box_coords[1] < 0) ? 0 : box_coords[1]) : video_height)).toString() + "px";
-                    rect.style.width = ((width / video_width) * (((box_coords[2] - box_coords[0]) < video_width) ? (((box_coords[2] - box_coords[0]) < 0) ? 0 : (box_coords[2] - box_coords[0])) : video_width)).toString() + "px";
-                    rect.style.height = ((height / video_height) * (((box_coords[3] - box_coords[1]) < video_height) ? (((box_coords[3] - box_coords[1]) < 0) ? 0 : (box_coords[3] - box_coords[1])) : video_height)).toString() + "px";
-                    rect.style.border = (trajectories[t].positions_rotations_and_boxes[i].is_interpolated)? "3px dashed rgb(59, 173, 227)" : "3px solid rgb(59, 173, 227)";
-                    rect.style.backgroundColor = "rgba(59, 173, 227,0.5)";
-                    rect.style.backdropFilter = "contrast(1.5)";
-                    rect.style.color = "rgb(59, 173, 227)";
-                    try {
-                        rect.innerText = trajectories[t].positions_rotations_and_boxes[i].confidence.toFixed(2);
-                    } catch {
-                        rect.innerText = "";
+                    if(box_coords) {
+                        const rect = document.createElement("div");
+                        rect.id = "id" + trajectories[t].id + "box";
+                        rect.style.position = "absolute";
+                        rect.style.left = (width / video_width * ((box_coords[0] < video_width) ? ((box_coords[0] < 0) ? 0 : box_coords[0]) : video_width)).toString() + "px";
+                        rect.style.top = (height / video_height * ((box_coords[1] < video_height) ? ((box_coords[1] < 0) ? 0 : box_coords[1]) : video_height)).toString() + "px";
+                        rect.style.width = ((width / video_width) * (((box_coords[2] - box_coords[0]) < video_width) ? (((box_coords[2] - box_coords[0]) < 0) ? 0 : (box_coords[2] - box_coords[0])) : video_width)).toString() + "px";
+                        rect.style.height = ((height / video_height) * (((box_coords[3] - box_coords[1]) < video_height) ? (((box_coords[3] - box_coords[1]) < 0) ? 0 : (box_coords[3] - box_coords[1])) : video_height)).toString() + "px";
+                        rect.style.border = (trajectories[t].positions_rotations_and_boxes[i].is_interpolated) ? "3px dashed rgb(59, 173, 227)" : "3px solid rgb(59, 173, 227)";
+                        rect.style.backgroundColor = "rgba(59, 173, 227,0.5)";
+                        rect.style.backdropFilter = "contrast(1.5)";
+                        rect.style.color = "rgb(59, 173, 227)";
+                        try {
+                            rect.innerText = trajectories[t].positions_rotations_and_boxes[i].confidence.toFixed(2);
+                        } catch {
+                            rect.innerText = "";
+                        }
+                        rect.addEventListener("mouseenter", handle_mouseenter_box);
+                        rect.addEventListener("mouseleave", handle_mouseleave_element);
+                        rect.addEventListener("click", handle_click_element);
+
+                        const tl_handle = document.createElement("div");
+                        tl_handle.id = "id" + trajectories[t].id + "box_tl_handle";
+                        tl_handle.classList.add("resizer");
+                        tl_handle.classList.add("top_left_resizer");
+                        tl_handle.addEventListener('mousedown', function (e) {
+                            handle_resizer_click(e, rect, t, i);
+                        });
+                        const tr_handle = document.createElement("div");
+                        tr_handle.id = "id" + trajectories[t].id + "box_tr_handle";
+                        tr_handle.classList.add("resizer");
+                        tr_handle.classList.add("top_right_resizer");
+                        tr_handle.addEventListener('mousedown', function (e) {
+                            handle_resizer_click(e, rect, t, i);
+                        });
+                        const bl_handle = document.createElement("div");
+                        bl_handle.id = "id" + trajectories[t].id + "box_bl_handle";
+                        bl_handle.classList.add("resizer");
+                        bl_handle.classList.add("bottom_left_resizer");
+                        bl_handle.addEventListener('mousedown', function (e) {
+                            handle_resizer_click(e, rect, t, i);
+                        });
+                        const br_handle = document.createElement("div");
+                        br_handle.id = "id" + trajectories[t].id + "box_br_handle";
+                        br_handle.classList.add("resizer");
+                        br_handle.classList.add("bottom_right_resizer");
+                        br_handle.addEventListener('mousedown', function (e) {
+                            handle_resizer_click(e, rect, t, i);
+                        });
+
+                        rect.appendChild(tl_handle);
+                        rect.appendChild(tr_handle);
+                        rect.appendChild(bl_handle);
+                        rect.appendChild(br_handle);
+                        boxes_div.appendChild(rect);
                     }
-                    rect.addEventListener("mouseenter", handle_mouseenter_box);
-                    rect.addEventListener("mouseleave", handle_mouseleave_element);
-                    rect.addEventListener("click", handle_click_element);
-
-                    const tl_handle = document.createElement("div");
-                    tl_handle.id = "id" + trajectories[t].id + "box_tl_handle";
-                    tl_handle.classList.add("resizer");
-                    tl_handle.classList.add("top_left_resizer");
-                    tl_handle.addEventListener('mousedown', function(e){
-                        handle_resizer_click(e, rect, t, i);
-                    });
-                    const tr_handle = document.createElement("div");
-                    tr_handle.id = "id" + trajectories[t].id + "box_tr_handle";
-                    tr_handle.classList.add("resizer");
-                    tr_handle.classList.add("top_right_resizer");
-                    tr_handle.addEventListener('mousedown', function(e){
-                        handle_resizer_click(e, rect, t, i);
-                    });
-                    const bl_handle = document.createElement("div");
-                    bl_handle.id = "id" + trajectories[t].id + "box_bl_handle";
-                    bl_handle.classList.add("resizer");
-                    bl_handle.classList.add("bottom_left_resizer");
-                    bl_handle.addEventListener('mousedown', function(e){
-                        handle_resizer_click(e, rect, t, i);
-                    });
-                    const br_handle = document.createElement("div");
-                    br_handle.id = "id" + trajectories[t].id + "box_br_handle";
-                    br_handle.classList.add("resizer");
-                    br_handle.classList.add("bottom_right_resizer");
-                    br_handle.addEventListener('mousedown', function(e){
-                        handle_resizer_click(e, rect, t, i);
-                    });
-
-                    rect.appendChild(tl_handle);
-                    rect.appendChild(tr_handle);
-                    rect.appendChild(bl_handle);
-                    rect.appendChild(br_handle);
-                    boxes_div.appendChild(rect);
                 }
             }
         }
@@ -255,6 +257,8 @@ function interpolateBBx(index, callback_f){
     xhr.open("POST", theUrl);
     xhr.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
+            const json_resp = JSON.parse(xhr.responseText);
+            trajectories[index] = json_resp;
             callback_f();
         }
     };

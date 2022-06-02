@@ -202,7 +202,7 @@ def write_relative_pos_video(objects, in_video, relative_positions_video):
                 box = obj.track.get_box(frame_nr)
                 box = list(map(int, map(round, box)))
                 if box is not None:
-                    labels = [("%.2f" % position[0][0]) + "m in front", ("%.2f" % position[1][0]) + "m right"]
+                    labels = [("%.2f" % position[1][0]) + "m in front", ("%.2f" % position[0][0]) + "m right"]
                     track_color = tuple(reversed(get_label_colors(12)[i % 12]))
                     frame = draw_box_with_labels(frame, box, box_color=track_color, labels=labels, label_color=track_color)
             except KeyError:
