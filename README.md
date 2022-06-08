@@ -142,6 +142,25 @@ Wobei der Pfad der Pfad zur Chrome Installation entsprechen sollte.
 Für den Modifier entsprechend in der trajectoryModifier/modifierApp.py Zeile 21 ersetzen durch:
 ```ui = FlaskUI(app, browser_path="...")```
 
+- Beim Ausführen:
+	```(sepia) ...\CGV-Tools\SePIA_CGV_Tools-main\trajectoryCreator>python app.py
+	...: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library cudart64_101.dll Traceback (most recent call last):
+	  File "app.py", line 4, in <module>
+	    from tasks import TaskManager
+	  File "...\CGV-Tools\SePIA_CGV_Tools-main\trajectoryCreator\tasks.py", line 8, in <module>
+	    from trajectoryEstimation import runTrajectoryEstimationTask
+	  File "...\CGV-Tools\SePIA_CGV_Tools-main\trajectoryCreator\trajectoryEstimation.py", line 4, in <module>
+	    import detection as det
+	  File "...\CGV-Tools\SePIA_CGV_Tools-main\trajectoryCreator\detection.py", line 10, in <module>
+	    from models.experimental import attempt_load
+	  File "...\CGV-Tools\SePIA_CGV_Tools-main\trajectoryCreator\models\experimental.py", line 7, in <module>
+	    from models.common import Conv, DWConv
+	  File "...\CGV-Tools\SePIA_CGV_Tools-main\trajectoryCreator\models\common.py", line 6, in <module>
+	    from yolo_utils.general import non_max_suppression
+	  File "...\CGV-Tools\SePIA_CGV_Tools-main\trajectoryCreator\yolo_utils\general.py", line 20, in <module>
+	    import yaml
+	ModuleNotFoundError: No module named 'yaml'```
+**Lösung:** pip install pyyaml
 
 ## Lizenzen
 Dieses Repository steht unter den gleichen Lizenzen wie die genutzten Bibliotheken.
