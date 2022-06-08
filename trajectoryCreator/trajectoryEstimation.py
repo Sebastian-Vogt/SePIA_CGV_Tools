@@ -227,7 +227,7 @@ class TrajectoryEstimator:
         if self.trackLabelVideoFlag:
             trackLabelVideo = cv2.VideoWriter(self.videoPath.replace(".", "_trackLabels."),
                                               cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), 10,
-                                              (self.width, self.height))
+                                              (self.width+240, self.height))
         else:
             trackLabelVideo = None
 
