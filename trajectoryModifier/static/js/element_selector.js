@@ -25,6 +25,29 @@ function hide_and_show_elements() {
  */
 function button_visibility() {
     for (let t = 0; t < trajectories.length; t++) {
+        // start with all visible
+
+        let button = document.getElementById("id"+trajectories[t].id).querySelector('.addButton');   // extrapolation possible
+        if (button) {
+            button.classList.remove("hidden");
+        }
+        button = document.getElementById("id"+trajectories[t].id).querySelector('.interpolateButton'); // interpolation not possible
+        if (button) {
+            button.classList.remove("hidden");
+        }
+        button = document.getElementById("id"+trajectories[t].id).querySelector('.boundingBoxInterpolateButton'); // interpolation not possible
+        if (button) {
+            button.classList.remove("hidden");
+        }
+        button = document.getElementById("id"+trajectories[t].id).querySelector('.orientationButton');   // orientation not possible
+        if (button) {
+            button.classList.remove("hidden");
+        }
+        button = document.getElementById("id"+trajectories[t].id).querySelector('.smoothButton');   // smoothing not possible
+        if (button) {
+            button.classList.remove("hidden");
+        }
+
         // when there are no points
         if (trajectories[t].positions_rotations_and_boxes.length == 0) {
             let button = document.getElementById("id"+trajectories[t].id).querySelector('.addButton');   // extrapolation possible
@@ -32,6 +55,10 @@ function button_visibility() {
                 button.classList.remove("hidden");
             }
             button = document.getElementById("id"+trajectories[t].id).querySelector('.interpolateButton'); // interpolation not possible
+            if (button) {
+                button.classList.add("hidden");
+            }
+            button = document.getElementById("id"+trajectories[t].id).querySelector('.boundingBoxInterpolateButton'); // interpolation not possible
             if (button) {
                 button.classList.add("hidden");
             }

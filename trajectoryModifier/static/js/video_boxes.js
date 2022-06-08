@@ -219,6 +219,7 @@ function handle_resizer_click(e, rect, t, i){
         rect.style.height = height+'px';
 
     };
+
     function up(eve) {
 
         trajectories[t].positions_rotations_and_boxes[i].box = [
@@ -234,14 +235,21 @@ function handle_resizer_click(e, rect, t, i){
         trajectories[t].positions_rotations_and_boxes[i].bb_specified = true;
         e.target.classList.remove("active_resizer");
 
-        interpolateBBx(t, function() {
+        /*interpolateBBx(t, function() {
             draw_boxes();
             // update save button
             if (!changes) {
                 changes = true;
                 updateSaveButton();
             }
-        });
+        });*/
+        draw_boxes();
+        // update save button
+        if (!changes) {
+            changes = true;
+            updateSaveButton();
+        }
+
     };
 
     e.target.addEventListener('mousemove', move);

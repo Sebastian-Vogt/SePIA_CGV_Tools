@@ -15,6 +15,23 @@ function interpolate_points(event) {
 }
 
 /**
+ * Handles the click on the interpolate boxes button
+ */
+function interpolate_boxes(event) {
+    const trajectory_id = event.target.closest(".elementButtonRegion").getAttribute("data-id");
+    let trajectory_index = trajectories.findIndex(t => "id"+t.id === trajectory_id);
+
+    interpolateBBx(trajectory_index, function() {
+            draw_boxes();
+            // update save button
+            if (!changes) {
+                changes = true;
+                updateSaveButton();
+            }
+        });
+}
+
+/**
  * Handles the click on the remove object button
  */
 function remove_object(event) {
@@ -648,6 +665,16 @@ function add_new_element_form_submit() {
         "                                <path fill-rule=\"evenodd\" d=\"M8 3a1 1 0 100-2 1 1 0 000 2z\" clip-rule=\"evenodd\"/>\n" +
         "                                <path fill-rule=\"evenodd\" d=\"M8 9.25a1 1 0 100-2 1 1 0 000 2z\" clip-rule=\"evenodd\"/>\n" +
         "                                <path fill-rule=\"evenodd\" d=\"M8 15a1 1 0 100-2 1 1 0 000 2z\" clip-rule=\"evenodd\"/>\n" +
+        "                            </svg>\n" +
+        "                        </a>\n" +
+        "                        <a type=\"button\" class=\"interactionButton elementButton boundingBoxInterpolateButton\" onclick=\"interpolate_boxes(event)\">\n" +
+        "                            <svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\" fill=\"currentColor\">\n" +
+        "                                <path fill-rule=\"evenodd\"\n" +
+        "                                      d=\"M3.646 14.354a.5.5 0 00.708 0L8 10.707l3.646 3.647a.5.5 0 00.708-.708l-4-4a.5.5 0 00-.708 0l-4 4a.5.5 0 000 .708zm0-12.208a.5.5 0 01.708 0L8 5.793l3.646-3.647a.5.5 0 01.708.708l-4 4a.5.5 0 01-.708 0l-4-4a.5.5 0 010-.708z\"\n" +
+        "                                      clip-rule=\"evenodd\"/>\n" +
+        "                                <rect width=\"2.1818604\" height=\"2.1818604\" x=\"6.9090695\" y=\"0.90906954\" style=\"fill:#000000;fill-opacity:0;stroke:rgba(59, 173, 227, 1);stroke-width:0.818139\" />\n" +
+        "                                <rect width=\"2.1818604\" height=\"2.1818604\" x=\"6.9090695\" y=\"12.909069\" style=\"fill:#000000;fill-opacity:0;stroke:rgba(59, 173, 227, 1);stroke-width:0.818139\" />\n" +
+        "                                <rect width=\"1.4545739\" height=\"1.454574\" x=\"7.2727132\" y=\"7.5227132\" style=\"fill:#000000;fill-opacity:0;stroke:rgba(59, 173, 227, 1);stroke-width:0.545426\" />\n" +
         "                            </svg>\n" +
         "                        </a>\n" +
         "                        <a type=\"button\" class=\"interactionButton elementButton addButton\" onclick=\"add_point(event)\">\n" +

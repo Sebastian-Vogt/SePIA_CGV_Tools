@@ -329,6 +329,18 @@
                             <path fill-rule="evenodd" d="M8 15a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
                         </svg>
                     </a>
+                    {% if trajectory.id != 0%}
+                        <a type="button" class="interactionButton elementButton boundingBoxInterpolateButton" onclick="interpolate_boxes(event)">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                      d="M3.646 14.354a.5.5 0 00.708 0L8 10.707l3.646 3.647a.5.5 0 00.708-.708l-4-4a.5.5 0 00-.708 0l-4 4a.5.5 0 000 .708zm0-12.208a.5.5 0 01.708 0L8 5.793l3.646-3.647a.5.5 0 01.708.708l-4 4a.5.5 0 01-.708 0l-4-4a.5.5 0 010-.708z"
+                                      clip-rule="evenodd"/>
+                                <rect width="2.1818604" height="2.1818604" x="6.9090695" y="0.90906954" style="fill:#000000;fill-opacity:0;stroke:rgba(59, 173, 227, 1);stroke-width:0.818139" />
+                                <rect width="2.1818604" height="2.1818604" x="6.9090695" y="12.909069" style="fill:#000000;fill-opacity:0;stroke:rgba(59, 173, 227, 1);stroke-width:0.818139" />
+                                <rect width="1.4545739" height="1.454574" x="7.2727132" y="7.5227132" style="fill:#000000;fill-opacity:0;stroke:rgba(59, 173, 227, 1);stroke-width:0.545426" />
+                            </svg>
+                        </a>
+                    {% endif %}
                     <a type="button" class="interactionButton elementButton addButton" onclick="add_point(event)">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
                             <path fill-rule="evenodd" d="M3.5 8a.5.5 0 01.5-.5h8a.5.5 0 010 1h-8a.5.5 0 01-.5-.5z"
