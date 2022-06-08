@@ -28,6 +28,26 @@ def interpolate_trajectory(trajectory, interpolate_missing_frames=False):
                 pos_frames_2_interp.append(frame)
             continue
 
+    if len(pos_frames) == 0:
+        lats = []
+        longs = []
+        pos_frames = []
+        pos_frames_2_interp = []
+        for frame in frames:
+            try:
+                prb = frame_dict[frame]
+                if ('position' in prb):
+                    lats.append(prb['position'][0])
+                    longs.append(prb['position'][1])
+                    pos_frames.append(frame)
+                else:
+                    pos_frames_2_interp.append(frame)
+
+            except KeyError:
+                if interpolate_missing_frames:
+                    pos_frames_2_interp.append(frame)
+                continue
+
     pos_degree = len(pos_frames)-1
     if pos_degree >= 0 and len(pos_frames_2_interp) > 0:
         pos_degree = "zero" if pos_degree == 0 else ("slinear" if pos_degree == 1 else ("quadratic" if pos_degree == 2 else ("cubic")))
@@ -81,6 +101,27 @@ def interpolate_bounding_boxes(trajectory):
                 box_frames_2_interp.append(frame)
         except KeyError:
             continue
+
+    if len(box_frames) == 0:
+        xmins = []
+        xmaxs = []
+        ymins = []
+        ymaxs = []
+        box_frames = []
+        box_frames_2_interp = []
+        for frame in frames:
+            try:
+                prb = frame_dict[frame]
+                if ('box' in prb):
+                    xmins.append(prb['box'][0])
+                    ymins.append(prb['box'][1])
+                    xmaxs.append(prb['box'][2])
+                    ymaxs.append(prb['box'][3])
+                    box_frames.append(frame)
+                else:
+                    box_frames_2_interp.append(frame)
+            except KeyError:
+                continue
 
     box_degree = len(box_frames) - 1
     if box_degree >= 0 and len(box_frames_2_interp) > 0:
