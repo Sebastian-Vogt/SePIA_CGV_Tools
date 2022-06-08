@@ -232,7 +232,7 @@ function handle_move(e) {
             trajectories[selection[selection_index][0]].positions_rotations_and_boxes[selection[selection_index][1]].specified = true;
         }
 
-        to_be_interpolated_trajectories = Array.from(new Set(selection.map(x => x[0])))
+        /*to_be_interpolated_trajectories = Array.from(new Set(selection.map(x => x[0])))
         for (let index = 0; index < to_be_interpolated_trajectories.length; index++) {
             if(selection_mode == "point" || selection_mode == "selection"){
                 if(selection_mode == "selection" && selection.filter(s => s[0] == to_be_interpolated_trajectories[index]).length == trajectories[to_be_interpolated_trajectories[index]].positions_rotations_and_boxes.length){
@@ -245,7 +245,7 @@ function handle_move(e) {
                     draw_boxes();}
                 );
             }
-        }
+        }*/
 
         button_visibility();
         redraw_object_map_object_outlines();
@@ -338,7 +338,7 @@ function handle_rotate(e) {
             trajectories[selection[selection_index][0]].positions_rotations_and_boxes[selection[selection_index][1]].specified = true;
         }
 
-        to_be_interpolated_trajectories = Array.from(new Set(selection.map(x => x[0])))
+        /*to_be_interpolated_trajectories = Array.from(new Set(selection.map(x => x[0])))
         for (let index = 0; index < to_be_interpolated_trajectories.length; index++) {
             if(selection_mode == "point" || selection_mode == "selection"){
                 if(selection_mode == "selection" && selection.filter(s => s[0] == to_be_interpolated_trajectories[index]).length == trajectories[to_be_interpolated_trajectories[index]].positions_rotations_and_boxes.length){
@@ -351,7 +351,7 @@ function handle_rotate(e) {
                     draw_boxes();}
                 );
             }
-        }
+        }*/
 
         button_visibility();
         redraw_object_map_object_outlines();
@@ -434,7 +434,7 @@ function handle_scale(e) {
             trajectories[selection[selection_index][0]].positions_rotations_and_boxes[selection[selection_index][1]].specified = true;
         }
 
-        to_be_interpolated_trajectories = Array.from(new Set(selection.map(x => x[0])))
+        /*to_be_interpolated_trajectories = Array.from(new Set(selection.map(x => x[0])))
         for (let index = 0; index < to_be_interpolated_trajectories.length; index++) {
             if(selection_mode == "point" || selection_mode == "selection"){
                 if(selection_mode == "selection" && selection.filter(s => s[0] == to_be_interpolated_trajectories[index]).length == trajectories[to_be_interpolated_trajectories[index]].positions_rotations_and_boxes.length){
@@ -447,7 +447,7 @@ function handle_scale(e) {
                     draw_boxes();}
                 );
             }
-        }
+        }*/
 
         button_visibility();
         redraw_object_map_object_outlines();
@@ -504,7 +504,7 @@ function handle_collapse(e) {
             trajectories[selection[selection_index][0]].positions_rotations_and_boxes[selection[selection_index][1]].specified = true;
         }
 
-        to_be_interpolated_trajectories = Array.from(new Set(selection.map(x => x[0])))
+        /*to_be_interpolated_trajectories = Array.from(new Set(selection.map(x => x[0])))
         for (let index = 0; index < to_be_interpolated_trajectories.length; index++) {
             interpolateTrajectory(to_be_interpolated_trajectories[index], false, function(){
                 button_visibility();
@@ -512,7 +512,7 @@ function handle_collapse(e) {
                 set_circle_colors();
                 draw_boxes();
             });
-        }
+        }*/
 
         // remove eventlistener otherwise they would stack
         map.removeEventListener('mouseup');
