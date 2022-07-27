@@ -45,11 +45,12 @@ def recalibrate():
     d2m = Transformer.from_crs(CRS("EPSG:4326"), CRS("EPSG:32633"))
     trajectories = request.get_json()
     trajectories = [fix_rotations(t) for t in trajectories]
-    trajectories.sort(key=lambda x: x['id'])
-    ego = trajectories[0]
+    ego = [item for item in trajectories if item.get('id') == 0][0]
+    objects = [item for item in trajectories if item.get('id') != 0]
+
     ego_pos = {pbr['frame']: pbr['position'] for pbr in ego["positions_rotations_and_boxes"]}
     ego_rot = {pbr['frame']: pbr['rotation'] for pbr in ego["positions_rotations_and_boxes"]}
-    objects = trajectories[1:]
+
     image_positions = []
     relative_world_positions = []
     weights = []
