@@ -1,4 +1,20 @@
 from scipy import interpolate
+import math
+import numpy as np
+
+def find_nearest_higher_value(value_array, base_value):
+    value_array = np.asarray(value_array, dtype=np.float)
+    diff = value_array - base_value
+    diff[diff < 0] = np.inf
+    idx = diff.argmin()
+    return value_array[idx]
+
+def find_nearest_lower_value(value_array, base_value):
+    value_array = np.asarray(value_array, dtype=np.float)
+    diff = base_value - value_array
+    diff[diff < 0] = np.inf
+    idx = diff.argmin()
+    return value_array[idx]
 
 
 def interpolate_trajectory(trajectory, interpolate_missing_frames=False):
@@ -16,7 +32,7 @@ def interpolate_trajectory(trajectory, interpolate_missing_frames=False):
         try:
             prb = frame_dict[frame]
             if ('position' in prb and (
-                    ('detected' in prb and prb['detected']) or ('specified' in prb and prb['specified']))):
+                    (('detected' in prb and prb['detected']) or ('specified' in prb and prb['specified'])) and not (math.isinf(prb["position"][0]) or math.isinf(prb["position"][1])))):
                 lats.append(prb['position'][0])
                 longs.append(prb['position'][1])
                 pos_frames.append(frame)
@@ -57,6 +73,16 @@ def interpolate_trajectory(trajectory, interpolate_missing_frames=False):
         for frame in pos_frames_2_interp:
             lat = lat_inter(frame).item()
             long = long_inter(frame).item()
+            if (math.isnan(lat) or math.isnan(long) or math.isinf(lat) or math.isinf(long)):
+                lower = find_nearest_lower_value(pos_frames, frame)
+                higher = find_nearest_higher_value(pos_frames, frame)
+                lower_lat = frame_dict[lower]['position'][0]
+                lower_long = frame_dict[lower]['position'][1]
+                higher_lat = frame_dict[higher]['position'][0]
+                higher_long = frame_dict[higher]['position'][1]
+                a = (frame - lower) / (higher - lower)
+                lat = higher_lat * a + lower_lat * (1-a)
+                long = higher_long * a + lower_long * (1-a)
             pos = [lat, long]
             try:
                 prb = frame_dict[frame]
