@@ -32,7 +32,7 @@ def interpolate_trajectory(trajectory, interpolate_missing_frames=False):
         try:
             prb = frame_dict[frame]
             if ('position' in prb and (
-                    ('detected' in prb and prb['detected']) or ('specified' in prb and prb['specified']))):
+                    (('detected' in prb and prb['detected']) or ('specified' in prb and prb['specified'])) and not (math.isinf(prb["position"][0]) or math.isinf(prb["position"][1])))):
                 lats.append(prb['position'][0])
                 longs.append(prb['position'][1])
                 pos_frames.append(frame)
