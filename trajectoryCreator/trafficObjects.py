@@ -65,7 +65,10 @@ class TrafficObject(object):
             self.id = TrafficObject.idCounter
             TrafficObject.idCounter += 1
 
-            self.spline_smooth()
+            if len(self.positions.keys()) > 0:
+                self.interOrExtrapolateBadPositionsLinear(self.track)
+
+                self.spline_smooth()
 
         self.orientations = orientation_estimator.estimate_orientations_for_track(self.positions)
 
@@ -74,10 +77,6 @@ class TrafficObject(object):
         else:
             self.approaches = None
         self.specifications, self.egoManeuverTypes = bc.calculateSpecification(self.positions, self.geo_handler, isEgo=self.isEgo)
-        if not self.isEgo:
-            self.badPositionExtrapolations = self.extrapolateSpecsForBadPositions(self.track, self.specifications, self.approaches)
-        else:
-            self.badPositionExtrapolations = None
 
 
     def to_dict(self):
@@ -117,20 +116,12 @@ class TrafficObject(object):
                         print("no specification or maneuver type for frame " + str(key) + "available")
             json_dict["positions_rotations_and_boxes"].append(pbrDict)
 
-        if self.badPositionExtrapolations:
-            for key, dictionary in self.badPositionExtrapolations.items():
-                pbrDict = {"frame": key,
-                           "box": dictionary["box"],
-                           "opponent_approach": dictionary["approach"],
-                           "opponent_specification": dictionary["specification"],
-                           "confidence": self.track.get_confidence(key)}
-                json_dict["positions_rotations_and_boxes"].append(pbrDict)
-
         return json_dict
 
     def gauss_smooth(self):
-        frames = self.positions.keys()
-        positions = self.positions.values()
+        sorted_dict = {k: self.positions[k] for k in sorted(self.positions)}
+        frames = list(sorted_dict.keys())
+        positions = list(sorted_dict.values())
         lats = np.array([x[0] for x in positions]).flatten()
         longs = np.array([x[1] for x in positions]).flatten()
         elevs = np.array([x[2] for x in positions]).flatten()
@@ -139,14 +130,21 @@ class TrafficObject(object):
             longs = gaussian_filter1d(longs, 2, mode='nearest')
             elevs = gaussian_filter1d(elevs, 2, mode='nearest')
             for i, frame in enumerate(frames):
-                self.positions[frame][0] = lats[i]
-                self.positions[frame][1] = longs[i]
-                self.positions[frame][2] = elevs[i]
+                if frame in self.positions:
+                    self.positions[frame][0] = lats[i]
+                    self.positions[frame][1] = longs[i]
+                    self.positions[frame][2] = elevs[i]
         if len(lats) == 1:
             for i, frame in enumerate(frames):
-                self.positions[frame][0] = lats[i]
-                self.positions[frame][1] = longs[i]
-                self.positions[frame][2] = elevs[i]
+                if frame in self.positions:
+                    self.positions[frame][0] = lats[i]
+                    self.positions[frame][1] = longs[i]
+                    self.positions[frame][2] = elevs[i]
+
+    def findBadPositionFrames(self, track):
+        frames = list(range(list(self.positions.keys())[0], track.last_detected_frame))
+        diff = set(frames).difference(set(self.positions.keys()))
+        return list(diff)
 
     def spline_smooth(self):
         def eval(u, t, tck):
@@ -156,8 +154,9 @@ class TrafficObject(object):
             root = optimize.root_scalar(eval, args=(t, tck), x0=0, x1=1, method="secant").root
             return np.array(interpolate.splev(root, tck)).flatten()
 
-        frames = list(self.positions.keys())
-        positions = self.positions.values()
+        sorted_dict = {k: self.positions[k] for k in sorted(self.positions)}
+        frames = list(sorted_dict.keys())
+        positions = list(sorted_dict.values())
         xs = np.array([x[0] for x in positions]).flatten()
         ys = np.array([x[1] for x in positions]).flatten()
         elevs = np.array([x[2] for x in positions]).flatten()
@@ -167,40 +166,59 @@ class TrafficObject(object):
 
             for i, frame in enumerate(frames):
                 pos = pos_at_time(frame, tck)
-                self.positions[frame][0] = pos[0]
-                self.positions[frame][1] = pos[1]
-                self.positions[frame][2] = pos[2]
+                if frame in self.positions:
+                    self.positions[frame][0] = pos[0]
+                    self.positions[frame][1] = pos[1]
+                    self.positions[frame][2] = pos[2]
         else:
             self.gauss_smooth()
 
+    def interOrExtrapolateBadPositionsLinear(self, track):
+        np.seterr('raise')
+        def find_nearest_higher_value(value_array, base_value):
+            value_array = np.asarray(value_array, dtype=np.float)
+            diff = value_array - base_value
+            diff[diff < 0] = np.inf
+            idx = diff.argmin()
+            if np.isinf(idx):
+                return "too high"
+            return value_array[idx]
 
-    def extrapolateSpecsForBadPositions(self, track, specifications, approaches):
+        def find_nearest_lower_value(value_array, base_value):
+            value_array = np.asarray(value_array, dtype=np.float)
+            diff = base_value - value_array
+            diff[diff < 0] = np.inf
+            idx = diff.argmin()
+            if np.isinf(idx):
+                return "too low"
+            return value_array[idx]
 
-        boxes = {}
-        for frame in range(0, track.last_detected_frame):
+        framesToExtrapolate = self.findBadPositionFrames(self.track)
+        existingFrames = list(self.positions.keys())
+        for frame in framesToExtrapolate:
+            lower_frame = find_nearest_lower_value(existingFrames, frame)
+            higher_frame = find_nearest_higher_value(existingFrames, frame)
+            if lower_frame == "too low":
+                lower_frame = existingFrames[0]
+                higher_frame = existingFrames[1]
+                lower_pos = self.positions[lower_frame]
+                higher_pos = self.positions[higher_frame]
+            elif higher_frame == "too high":
+                lower_frame = existingFrames[-2]
+                higher_frame = existingFrames[-1]
+                lower_pos = self.positions[lower_frame]
+                higher_pos = self.positions[higher_frame]
+            else:
+                lower_pos = self.positions[lower_frame]
+                higher_pos = self.positions[higher_frame]
+                if higher_frame == lower_frame:
+                    continue
+            x = higher_pos[0][0] + (higher_pos[0][0] - lower_pos[0][0])/(higher_frame-lower_frame)*(frame-higher_frame)
+            y = higher_pos[1][0] + (higher_pos[1][0] - lower_pos[1][0])/(higher_frame-lower_frame)*(frame-higher_frame)
+            z = higher_pos[2][0] + (higher_pos[2][0] - lower_pos[2][0])/(higher_frame-lower_frame)*(frame-higher_frame)
             box = track.get_box(frame)
-            if box is None:
-                continue
-            boxes[frame] = [int(round(x)) for x in box]
-
-        diff = set(boxes.keys()).difference(set(specifications.keys()))
-        diff2 = set(boxes.keys()).difference(set(approaches.keys()))
-        diff = diff.union(diff2)
-
-        extrapolated_values = {}
-        if len(diff) > 0 and len(list(specifications.keys())) > 0 and len(list(approaches.keys())) > 0:
-            for frame in diff:
-                nearest_spec_frame = sorted(specifications.keys(), key=lambda f: abs(frame-f))[0]
-                nearest_app_frame = sorted(approaches.keys(), key=lambda f: abs(frame-f))[0]
-                dictionary = {"box": boxes[frame]}
-                try:
-                    dictionary["specification"] = specifications[nearest_spec_frame]
-                except KeyError:
-                    pass
-                try:
-                    dictionary["approach"] = approaches[nearest_app_frame]
-                except KeyError:
-                    pass
-                extrapolated_values[frame] = dictionary
-
-        return extrapolated_values
+            box = [int(round(x)) for x in box]
+            self.positions[frame] = [[x], [y], [z]]
+            self.track.boxes[frame] = box
+            if not frame in list(self.track.confidences.keys()):
+                self.track.confidences[frame] = 0
